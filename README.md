@@ -1,6 +1,6 @@
-# Ecuador Trivia Journey (GitHub Pages ready)
+﻿# Ecuador Trivia Journey (GitHub Pages ready)
 
-Single-page, Jeopardy-style Ecuador game. Runs directly from `index.html` with no build step and persists progress in `localStorage`. Theme blends Andes/Amazon visuals, SVG map nodes (Quito → Baños → Cuenca), AI turns, keyboard accessibility, and sound effects only (no narration).
+Single-page, Jeopardy-style Ecuador game. Runs directly from `index.html` with no build step and persists progress in `localStorage`. Theme blends Andes/Amazon visuals, inline SVG map nodes (Quito -> Baños -> Cuenca), deterministic AI turns, keyboard accessibility, and sound effects only (no narration).
 
 ## Quick start & deploy
 - Open `index.html` in a browser, or serve locally (`python -m http.server 8000`), or push the folder to GitHub and enable **GitHub Pages** (root, `/`).
@@ -13,7 +13,7 @@ Single-page, Jeopardy-style Ecuador game. Runs directly from `index.html` with n
 - `config.ai.thinkMs`: AI thinking delay range in ms.
 - `config.tileValues`: money per tile (default `[200,400,600]`).
 - `config.audioFiles`: filenames to load from `assets/audio/`.
-- AI determinism: nickname seeds the AI PRNG. Same nickname → same AI choices. For a fixed seed, set `state.aiSeed` in `localStorage` before playing.
+- AI determinism: nickname seeds the AI PRNG. Same nickname -> same AI choices. For a fixed seed, set `state.aiSeed` in `localStorage` before playing.
 
 ## Data set (verbatim from user)
 Single source: `data/questions.json` with fields `category`, `question`, `answer`, `value`, `level`, plus `fallbacks` and `gaps`. Strings are unchanged from the supplied image/audio.
@@ -54,10 +54,11 @@ Single source: `data/questions.json` with fields `category`, `question`, `answer
 **Data verification & gaps**
 - No low-confidence strings; punctuation/capitalization kept verbatim.
 - Missing `$400` for level 3 in Información General and La Cultura y los Animales are logged in `gaps`; `fallbacks` reuse provided level-1 `$400` entries so each category still shows $200/$400/$600. Replace these when true level-3 `$400` items exist.
+- Interface text is fully in English; only the provided questions/answers stay in Spanish.
 
 ## Update the question set
 1) Edit only `data/questions.json`.  
-2) Keep fields `category`, `question`, `answer`, `value`, `level`. Ensure each category/level has $200/$400/$600. If not, map `"<Category>|<Level>|<Value>"` to an existing `id` in `fallbacks`.  
+2) Keep fields `category`, `question`, `answer`, `value`, `level`. Ensure each category/level has $200/$400/$600. If not, map "<Category>|<Level>|<Value>" to an existing `id` in `fallbacks`.  
 3) Reload the page; a friendly message appears if JSON fails.  
 4) Update this README section if strings change.
 

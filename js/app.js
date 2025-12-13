@@ -118,7 +118,7 @@
       buildPractice();
       renderMap();
     } catch (err) {
-      showToast("No se pudo cargar el banco de preguntas. Revisa data/questions.json");
+      showToast("Could not load the question bank. Check data/questions.json");
       console.error(err);
     }
   }
@@ -126,7 +126,7 @@
   function fetchQuestions() {
     return fetch("data/questions.json")
       .then(r => {
-        if (!r.ok) throw new Error("Error cargando preguntas");
+        if (!r.ok) throw new Error("Error loading questions");
         return r.json();
       });
   }
@@ -186,7 +186,7 @@
     ui.hud.back.addEventListener("click", () => setScreen("map"));
     ui.modal.close.addEventListener("click", closeQuestion);
     ui.modal.submit.addEventListener("click", submitAnswer);
-    ui.modal.giveUp.addEventListener("click", () => concludeAnswer(false, "Pasaste"));
+    ui.modal.giveUp.addEventListener("click", () => concludeAnswer(false, "You passed"));
     ui.modal.modes.forEach(btn => btn.addEventListener("click", () => switchMode(btn.dataset.mode)));
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeQuestion();
@@ -202,7 +202,7 @@
     e.preventDefault();
     const name = ui.nickname.value.trim();
     if (!name) {
-      showToast("Escribe un apodo para comenzar");
+      showToast("Enter a nickname to start");
       return;
     }
     state.nickname = name;
@@ -282,7 +282,7 @@
     ui.intro.cards[activeIdx + 1].classList.add("active");
     updateIntroProgress(activeIdx + 1);
     if (activeIdx + 1 === ui.intro.cards.length - 1) {
-      ui.intro.next.textContent = "Ir al mapa";
+      ui.intro.next.textContent = "Go to map";
       setTimeout(() => setScreen("map"), 1200);
     }
   }
@@ -311,10 +311,10 @@
     const selected = e.currentTarget.dataset.answer;
     const correct = practicePool[0].answer;
     if (selected === correct) {
-      ui.intro.practiceFeedback.textContent = "¡Correcto! Ya estás listo para comenzar.";
+      ui.intro.practiceFeedback.textContent = "Correct! You're ready to begin.";
       playSound("correct");
     } else {
-      ui.intro.practiceFeedback.textContent = "Respuesta incorrecta. No te preocupes, las pistas te ayudarán.";
+      ui.intro.practiceFeedback.textContent = "Incorrect. No worries - examples will help.";
       playSound("incorrect");
     }
   }
@@ -326,7 +326,7 @@
       node.classList.toggle("locked", !unlocked);
       node.classList.toggle("complete", complete);
       node.setAttribute("tabindex", unlocked ? "0" : "-1");
-      node.setAttribute("aria-label", `${node.querySelector(".city-label").textContent}, nivel ${level} ${unlocked ? "" : "bloqueado"}`);
+      node.setAttribute("aria-label", `${node.querySelector(".city-label").textContent}, level ${level} ${unlocked ? "" : "locked"}`);
     });
     const line12 = ui.map.lines["1-2"];
     const line23 = ui.map.lines["2-3"];
@@ -336,7 +336,7 @@
 
   function tryEnterLevel(level) {
     if (!state.unlocked[level]) {
-      showToast("Nivel bloqueado. Completa la ciudad anterior.");
+      showToast("Level locked. Clear the previous city first.");
       return;
     }
     state.currentLevel = level;
@@ -348,10 +348,10 @@
 
   function renderBoard(level) {
     if (!questionData) {
-      ui.board.grid.innerHTML = "<p>No se pudo cargar el banco de preguntas.</p>";
+      ui.board.grid.innerHTML = "<p>Question bank failed to load.</p>";
       return;
     }
-    ui.board.title.textContent = `Nivel ${level} · ${questionData?.levels?.find(l => l.id === level)?.name || ""}`;
+    ui.board.title.textContent = `Level ${level} - ${questionData?.levels?.find(l => l.id === level)?.name || ""}`;
     ui.board.grid.innerHTML = "";
     const categories = questionData.categories;
     categories.forEach(cat => {
@@ -367,9 +367,9 @@
         const key = tileKey(cat, value);
         const played = state.tiles[level][key];
         const q = findQuestion(level, cat, value);
-        tile.innerHTML = `<span>$${value}</span><span>${played ? (played.by === "player" ? "Tú" : "IA") : "Listo"}</span>`;
+        tile.innerHTML = `<span>$${value}</span><span>${played ? (played.by === "player" ? "You" : "AI") : "Ready"}</span>`;
         tile.disabled = !q || !!played;
-        tile.setAttribute("aria-label", `${cat} por $${value} ${played ? "ya jugada" : ""}`);
+        tile.setAttribute("aria-label", `${cat} for $${value} ${played ? "already played" : ""}`);
         if (q) {
           tile.addEventListener("click", () => openQuestion(level, cat, value, q));
         }
@@ -397,7 +397,7 @@
 
   function openQuestion(level, category, value, q) {
     activeQuestion = { level, category, value, data: q, start: performance.now() };
-    ui.modal.title.textContent = `${category} · $${value}`;
+    ui.modal.title.textContent = `${category} - $${value}`;
     ui.modal.text.textContent = q.question;
     ui.modal.feedback.textContent = "";
     ui.modal.textField.value = "";
@@ -456,7 +456,7 @@
       const first = ui.modal.choiceContainer.querySelector("button");
       if (first) first.focus();
     }
-    ui.board.note.textContent = mode === "text" ? "Escribe y presiona Enter para responder rápido." : "Selecciona una opción y pulsa Responder.";
+    ui.board.note.textContent = mode === "text" ? "Type and press Enter to answer quickly." : "Select an option and press Submit.";
   }
 
   function startTimer() {
@@ -468,7 +468,7 @@
       ui.board.timer.textContent = remaining;
       if (remaining <= 0) {
         clearInterval(timerInterval);
-        concludeAnswer(false, "Tiempo agotado");
+        concludeAnswer(false, "Time is up");
       }
     }, 1000);
   }
@@ -484,15 +484,15 @@
       userAnswer = sel ? sel.dataset.value : "";
     }
     if (!userAnswer) {
-      showToast("Escribe o selecciona una respuesta");
+      showToast("Type or select an answer");
       return;
     }
     const isCorrect = compareAnswers(userAnswer, activeQuestion.data.answer);
-    concludeAnswer(isCorrect, isCorrect ? "¡Correcto!" : "Respuesta incorrecta");
+    concludeAnswer(isCorrect, isCorrect ? "Correct!" : "Incorrect answer");
   }
 
   function compareAnswers(given, correct) {
-    const norm = (s) => s.toLowerCase().trim().replace(/[.¡!¿?\s]+$/g, "");
+    const norm = (s) => s.toLowerCase().trim().replace(/[.!?\s]+$/g, "");
     return norm(given) === norm(correct);
   }
 
@@ -503,8 +503,8 @@
     applyScore("player", correct);
     markTile(activeQuestion.level, activeQuestion.category, activeQuestion.value, { by: "player", correct, timeMs: elapsed, id: activeQuestion.data.id });
     updateStatsAfterAnswer(correct, activeQuestion.value, elapsed);
-    ui.modal.feedback.textContent = `${message} · Respuesta: ${activeQuestion.data.answer}`;
-    showFeedback(`${message} ${correct ? "Sumas" : "Pierdes"} $${activeQuestion.value}`);
+    ui.modal.feedback.textContent = `${message} - Answer: ${activeQuestion.data.answer}`;
+    showFeedback(`${message} ${correct ? "You gain" : "You lose"} $${activeQuestion.value}`);
     playSound(correct ? "correct" : "incorrect");
     saveState();
     setTimeout(() => {
@@ -535,7 +535,7 @@
   }
 
   function updateHud() {
-    ui.hud.player.textContent = state.nickname || "Jugador";
+    ui.hud.player.textContent = state.nickname || "Player";
     ui.hud.playerMoney.textContent = `$${state.scores.player || 0}`;
     ui.hud.aiMoney.textContent = `$${state.scores.ai || 0}`;
     ui.hud.level.textContent = state.currentLevel;
@@ -548,7 +548,7 @@
     if (!available.length) return;
     const pick = chooseAiTile(available);
     if (!pick) return;
-    showFeedback(`IA pensando en ${pick.category} · $${pick.value}...`);
+    showFeedback(`AI thinking on ${pick.category} - $${pick.value}...`);
     const delay = lerp(config.ai.thinkMs[0], config.ai.thinkMs[1], aiRng());
     setTimeout(() => {
       const successChance = config.ai.successByLevel[level] || 0.5;
@@ -556,7 +556,7 @@
       activeQuestion = pick;
       applyScore("ai", correct);
       markTile(level, pick.category, pick.value, { by: "ai", correct, id: pick.data.id });
-      showFeedback(`IA ${correct ? "acierta" : "falla"} ${pick.category} $${pick.value}`);
+      showFeedback(`AI ${correct ? "gets" : "misses"} ${pick.category} $${pick.value}`);
       playSound(correct ? "correct" : "incorrect");
       saveState();
       renderBoard(level);
@@ -599,7 +599,7 @@
       if (level < 3) state.unlocked[level + 1] = true;
       saveState();
       renderMap();
-      showFeedback(`Ciudad completada. ${level < 3 ? "¡Siguiente ciudad desbloqueada!" : "Fin del juego."}`);
+      showFeedback(`City completed. ${level < 3 ? "Next city unlocked!" : "Game finished."}`);
       if (level === 3) {
         triggerEnd();
       } else {
@@ -649,12 +649,12 @@
   }
 
   function shareResult() {
-    const text = `Ecuador Trivia Journey: ${state.nickname || "Jugador"} ${state.scores.player >= state.scores.ai ? "vence" : "pierde"} a la IA ${state.scores.player} vs ${state.scores.ai}.`;
+    const text = `Ecuador Trivia Journey: ${state.nickname || "Player"} ${state.scores.player >= state.scores.ai ? "beats" : "loses to"} the AI ${state.scores.player} vs ${state.scores.ai}.`;
     if (navigator.share) {
       navigator.share({ title: "Ecuador Trivia Journey", text });
     } else {
       navigator.clipboard.writeText(text);
-      showToast("Resumen copiado al portapapeles.");
+      showToast("Summary copied to clipboard.");
     }
   }
 

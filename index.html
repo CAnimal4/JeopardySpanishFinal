@@ -16,22 +16,22 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">EC</div>
         <div>
-          <p class="overline">Ruta Andes–Amazonas</p>
+          <p class="overline">Andes-Amazon route</p>
           <h1>Ecuador Trivia Journey</h1>
         </div>
       </div>
       <div class="hud" aria-live="polite">
-        <div><span class="hud-label">Jugador</span><span id="hud-player"></span></div>
-        <div><span class="hud-label">Dinero</span><span id="hud-player-money">$0</span></div>
-        <div><span class="hud-label">Rival IA</span><span id="hud-ai-money">$0</span></div>
-        <div><span class="hud-label">Nivel</span><span id="hud-level">-</span></div>
-        <button id="back-to-map" class="ghost" aria-label="Volver al mapa" title="Volver al mapa">Mapa</button>
+        <div><span class="hud-label">Player</span><span id="hud-player"></span></div>
+        <div><span class="hud-label">Money</span><span id="hud-player-money">$0</span></div>
+        <div><span class="hud-label">AI Rival</span><span id="hud-ai-money">$0</span></div>
+        <div><span class="hud-label">Level</span><span id="hud-level">-</span></div>
+        <button id="back-to-map" class="ghost" aria-label="Back to map" title="Back to map">Map</button>
       </div>
     </header>
 
     <main>
       <!-- Start -->
-      <section id="start-screen" class="screen active" aria-label="Pantalla de inicio">
+      <section id="start-screen" class="screen active" aria-label="Start screen">
         <div class="start-card glass">
           <div class="start-visual" aria-hidden="true">
             <div class="sun"></div>
@@ -42,64 +42,64 @@
             <div class="wave wave-2"></div>
           </div>
           <div class="start-body">
-            <p class="overline">Listo para jugar</p>
-            <h2>Elige tu apodo y ajustes</h2>
+            <p class="overline">Ready to play</p>
+            <h2>Choose your nickname and settings</h2>
             <form id="start-form">
-              <label for="nickname" class="field-label">Apodo (máx 20 caracteres)</label>
-              <input id="nickname" name="nickname" type="text" maxlength="20" required aria-required="true" autocomplete="off" placeholder="Explorador" />
+              <label for="nickname" class="field-label">Nickname (max 20 characters)</label>
+              <input id="nickname" name="nickname" type="text" maxlength="20" required aria-required="true" autocomplete="off" placeholder="Explorer" />
               <div class="settings-grid">
                 <label class="toggle">
                   <input type="checkbox" id="sfx-toggle" checked>
-                  <span>Sonidos SFX</span>
+                  <span>Sound effects</span>
                 </label>
                 <label class="toggle">
                   <input type="checkbox" id="music-toggle" checked>
-                  <span>Ambiente / música</span>
+                  <span>Ambient / music</span>
                 </label>
                 <label class="toggle">
                   <input type="checkbox" id="theme-toggle">
-                  <span>Tema oscuro</span>
+                  <span>Dark theme</span>
                 </label>
                 <label class="toggle">
                   <input type="checkbox" id="contrast-toggle">
-                  <span>Alto contraste</span>
+                  <span>High contrast</span>
                 </label>
                 <label class="toggle">
                   <input type="checkbox" id="motion-toggle">
-                  <span>Reducir animaciones</span>
+                  <span>Reduce motion</span>
                 </label>
               </div>
               <div class="actions-row">
-                <button type="button" id="clear-progress" class="ghost" aria-label="Borrar progreso guardado">Borrar progreso</button>
-                <button type="submit" id="play-btn" class="primary" aria-label="Jugar ahora">Jugar</button>
+                <button type="button" id="clear-progress" class="ghost" aria-label="Clear saved progress">Clear progress</button>
+                <button type="submit" id="play-btn" class="primary" aria-label="Play now">Play</button>
               </div>
-              <p class="mini-note">No hay narración. Los sonidos se pueden silenciar en cualquier momento.</p>
+              <p class="mini-note">No narration. Sounds can be muted anytime.</p>
             </form>
           </div>
         </div>
       </section>
 
       <!-- Intro -->
-      <section id="intro-screen" class="screen" aria-label="Introducción y reglas">
+      <section id="intro-screen" class="screen" aria-label="Introduction and rules">
         <div class="intro-wrapper glass">
           <div class="intro-steps">
             <div class="intro-card active" data-step="1">
               <div class="narrator">
-                <div class="bubble">¡Bienvenido! Cruza Ecuador contestando preguntas de 200, 400 y 600 dólares. Acumula más dinero que la IA.</div>
+                <div class="bubble">Welcome! Travel across Ecuador answering $200, $400, and $600 clues. Earn more money than the AI rival.</div>
               </div>
-              <p>Las ciudades se desbloquean en orden. Cada casilla solo se juega una vez; las respuestas correctas suman dinero y las incorrectas restan.</p>
+              <p>Cities unlock in order. Each tile can be played once; correct answers add money, incorrect answers subtract.</p>
             </div>
             <div class="intro-card" data-step="2">
               <div class="narrator">
-                <div class="bubble">La IA también juega: piensa un momento, elige casillas valiosas y acierta con probabilidades configurables.</div>
+                <div class="bubble">The AI also plays: it “thinks”, prefers higher values, and succeeds based on configurable probabilities.</div>
               </div>
-              <p>Todo tu avance se guarda en el navegador: puntaje, ciudades desbloqueadas, ajustes y casillas resueltas.</p>
+              <p>Your progress stays in the browser: scores, unlocked cities, settings, and answered tiles persist after refresh.</p>
             </div>
             <div class="intro-card" data-step="3">
               <div class="narrator">
-                <div class="bubble">Practica: intenta responder la pregunta de ejemplo antes de empezar.</div>
+                <div class="bubble">Practice: try the sample question before starting.</div>
               </div>
-              <div class="practice" role="group" aria-label="Pregunta de práctica">
+              <div class="practice" role="group" aria-label="Practice question">
                 <div class="question-line" id="practice-question"></div>
                 <div class="answers">
                   <button class="chip" data-practice="a"></button>
@@ -112,27 +112,27 @@
           </div>
           <div class="intro-controls">
             <div id="intro-progress" aria-hidden="true"></div>
-            <button id="next-intro" class="primary">Siguiente</button>
+            <button id="next-intro" class="primary">Next</button>
           </div>
         </div>
       </section>
 
       <!-- Map -->
-      <section id="map-screen" class="screen" aria-label="Mapa de Ecuador y niveles">
+      <section id="map-screen" class="screen" aria-label="Map of Ecuador and levels">
         <div class="map-panel glass">
           <div class="map-header">
             <div>
-              <p class="overline">Explora el mapa</p>
-              <h2>Niveles: Quito → Baños → Cuenca</h2>
+              <p class="overline">Explore the map</p>
+              <h2>Levels: Quito -> Baños -> Cuenca</h2>
             </div>
             <div class="map-legend">
-              <span class="legend-item"><span class="dot unlocked"></span>Desbloqueado</span>
-              <span class="legend-item"><span class="dot locked"></span>Bloqueado</span>
-              <span class="legend-item"><span class="dot complete"></span>Completado</span>
+              <span class="legend-item"><span class="dot unlocked"></span>Unlocked</span>
+              <span class="legend-item"><span class="dot locked"></span>Locked</span>
+              <span class="legend-item"><span class="dot complete"></span>Completed</span>
             </div>
           </div>
           <div class="map-wrapper">
-            <svg id="ecuador-map" viewBox="0 0 420 520" role="img" aria-label="Mapa estilizado de Ecuador">
+            <svg id="ecuador-map" viewBox="0 0 420 520" role="img" aria-label="Stylized map of Ecuador">
               <defs>
                 <linearGradient id="mapGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stop-color="#1e7350"/>
@@ -142,15 +142,15 @@
               <path d="M120,60 L250,90 L310,200 L280,360 L160,480 L70,380 L80,200 Z" fill="url(#mapGradient)" opacity="0.4" stroke="#0f3e2d" stroke-width="2"></path>
               <line id="line-1-2" x1="170" y1="210" x2="200" y2="320" class="map-line dashed"></line>
               <line id="line-2-3" x1="200" y1="320" x2="190" y2="430" class="map-line dashed"></line>
-              <g id="city-1" class="city-node" tabindex="0" role="button" aria-label="Quito, nivel 1" transform="translate(160 190)">
+              <g id="city-1" class="city-node" tabindex="0" role="button" aria-label="Quito, level 1" transform="translate(160 190)">
                 <circle r="14" class="city-circle"></circle>
                 <text y="36" class="city-label">Quito</text>
               </g>
-              <g id="city-2" class="city-node locked" tabindex="-1" role="button" aria-label="Baños, nivel 2 bloqueado" transform="translate(200 310)">
+              <g id="city-2" class="city-node locked" tabindex="-1" role="button" aria-label="Baños, level 2 locked" transform="translate(200 310)">
                 <circle r="14" class="city-circle"></circle>
                 <text y="36" class="city-label">Baños</text>
               </g>
-              <g id="city-3" class="city-node locked" tabindex="-1" role="button" aria-label="Cuenca, nivel 3 bloqueado" transform="translate(190 420)">
+              <g id="city-3" class="city-node locked" tabindex="-1" role="button" aria-label="Cuenca, level 3 locked" transform="translate(190 420)">
                 <circle r="14" class="city-circle"></circle>
                 <text y="36" class="city-label">Cuenca</text>
               </g>
@@ -160,19 +160,19 @@
       </section>
 
       <!-- Board -->
-      <section id="board-screen" class="screen" aria-label="Tablero de preguntas">
+      <section id="board-screen" class="screen" aria-label="Question board">
         <div class="board-panel glass">
           <div class="board-header">
             <div>
-              <p class="overline">Categorías</p>
-              <h2 id="board-title">Tablero</h2>
+              <p class="overline">Categories</p>
+              <h2 id="board-title">Board</h2>
             </div>
             <div class="timers">
-              <div class="timer" aria-live="polite">Tiempo: <span id="timer-value">--</span>s</div>
-              <div class="note" id="mode-note">Puedes responder por texto o elección múltiple.</div>
+              <div class="timer" aria-live="polite">Time: <span id="timer-value">--</span>s</div>
+              <div class="note" id="mode-note">You can answer with text or multiple choice.</div>
             </div>
           </div>
-          <div id="board-grid" class="board-grid" role="grid" aria-label="Tablero Jeopardy"></div>
+          <div id="board-grid" class="board-grid" role="grid" aria-label="Jeopardy board"></div>
         </div>
       </section>
 
@@ -180,22 +180,22 @@
       <div id="question-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="question-title">
         <div class="modal-content glass">
           <div class="modal-header">
-            <h3 id="question-title">Pregunta</h3>
-            <button id="close-question" class="ghost" aria-label="Cerrar pregunta">Esc</button>
+            <h3 id="question-title">Question</h3>
+            <button id="close-question" class="ghost" aria-label="Close question">Esc</button>
           </div>
           <div id="question-text" class="question-text" aria-live="polite"></div>
           <div class="answer-modes" role="tablist">
-            <button class="chip" data-mode="text" aria-selected="true">Respuesta rápida</button>
-            <button class="chip" data-mode="choice" aria-selected="false">Opción múltiple</button>
+            <button class="chip" data-mode="text" aria-selected="true">Quick text</button>
+            <button class="chip" data-mode="choice" aria-selected="false">Multiple choice</button>
           </div>
           <div class="mode mode-text">
-            <label class="field-label" for="text-answer">Tu respuesta</label>
+            <label class="field-label" for="text-answer">Your answer</label>
             <input id="text-answer" type="text" autocomplete="off">
           </div>
-          <div class="mode mode-choice hidden" id="choice-container" role="radiogroup" aria-label="Opciones de respuesta"></div>
+          <div class="mode mode-choice hidden" id="choice-container" role="radiogroup" aria-label="Answer options"></div>
           <div class="modal-actions">
-            <button id="submit-answer" class="primary">Responder</button>
-            <button id="give-up" class="ghost">Pasar</button>
+            <button id="submit-answer" class="primary">Submit</button>
+            <button id="give-up" class="ghost">Pass</button>
           </div>
           <div id="question-feedback" class="mini-note" aria-live="polite"></div>
         </div>
@@ -205,7 +205,7 @@
       <div id="feedback-bar" class="feedback-bar" aria-live="polite"></div>
 
       <!-- End game -->
-      <section id="end-screen" class="screen" aria-label="Final del juego">
+      <section id="end-screen" class="screen" aria-label="End of game">
         <div class="end-card glass">
           <div class="end-visual" aria-hidden="true">
             <div class="firework fw1"></div>
@@ -213,22 +213,22 @@
             <div class="firework fw3"></div>
           </div>
           <div class="end-body">
-            <p class="overline">Fin del recorrido</p>
-            <h2>¡Bien jugado!</h2>
+            <p class="overline">Journey complete</p>
+            <h2>Great game!</h2>
             <div class="stats-grid">
-              <div><span class="hud-label">Dinero jugador</span><strong id="final-player"></strong></div>
-              <div><span class="hud-label">Dinero IA</span><strong id="final-ai"></strong></div>
-              <div><span class="hud-label">Aciertos</span><strong id="final-correct"></strong></div>
-              <div><span class="hud-label">Errores</span><strong id="final-wrong"></strong></div>
-              <div><span class="hud-label">Respuesta más grande</span><strong id="final-best"></strong></div>
-              <div><span class="hud-label">Respuesta más rápida</span><strong id="final-fastest"></strong></div>
-              <div><span class="hud-label">Tiempo jugado</span><strong id="final-time"></strong></div>
+              <div><span class="hud-label">Player money</span><strong id="final-player"></strong></div>
+              <div><span class="hud-label">AI money</span><strong id="final-ai"></strong></div>
+              <div><span class="hud-label">Correct</span><strong id="final-correct"></strong></div>
+              <div><span class="hud-label">Incorrect</span><strong id="final-wrong"></strong></div>
+              <div><span class="hud-label">Biggest tile</span><strong id="final-best"></strong></div>
+              <div><span class="hud-label">Fastest answer</span><strong id="final-fastest"></strong></div>
+              <div><span class="hud-label">Time played</span><strong id="final-time"></strong></div>
             </div>
             <div class="actions-row">
-              <button id="replay" class="primary">Jugar de nuevo</button>
-              <button id="restart-map" class="ghost">Volver al mapa</button>
-              <button id="share" class="ghost">Compartir</button>
-              <button id="download-json" class="ghost">Descargar resumen</button>
+              <button id="replay" class="primary">Play again</button>
+              <button id="restart-map" class="ghost">Back to map</button>
+              <button id="share" class="ghost">Share</button>
+              <button id="download-json" class="ghost">Download summary</button>
             </div>
           </div>
         </div>
