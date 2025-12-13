@@ -24,6 +24,7 @@
   let practicePool = [];
   let aiRng = seededRandom(state.aiSeed || Date.now());
   let audioBank = {};
+  let audioPrimed = false;
 
   const ui = {
     screens: {
@@ -135,7 +136,7 @@
     const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
-        return JSON.parse(saved);
+        return normalizeState(JSON.parse(saved));
       } catch (_) {
         return createDefaultState();
       }
@@ -158,10 +159,19 @@
       completed: { 1: false, 2: false, 3: false },
       currentLevel: 1,
       tiles: { 1: {}, 2: {}, 3: {} },
-      stats: { correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now() },
+      stats: { correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0 },
       aiSeed: Date.now(),
       sessionId: cryptoRandom()
     };
+  }
+
+  function normalizeState(s) {
+    s.stats = Object.assign({ correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0 }, s.stats || {});
+    s.scores = Object.assign({ player: 0, ai: 0 }, s.scores || {});
+    s.unlocked = Object.assign({ 1: true, 2: false, 3: false }, s.unlocked || {});
+    s.completed = Object.assign({ 1: false, 2: false, 3: false }, s.completed || {});
+    s.tiles = Object.assign({ 1: {}, 2: {}, 3: {} }, s.tiles || {});
+    return s;
   }
 
   function saveState() {
@@ -208,6 +218,7 @@
     state.nickname = name;
     state.aiSeed = hashString(name || state.sessionId || Date.now());
     aiRng = seededRandom(state.aiSeed);
+    primeAudio();
     ui.hud.player.textContent = name;
     saveState();
     setScreen("intro");
@@ -492,8 +503,47 @@
   }
 
   function compareAnswers(given, correct) {
-    const norm = (s) => s.toLowerCase().trim().replace(/[.!?\s]+$/g, "");
-    return norm(given) === norm(correct);
+    const norm = (s) => s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9 ]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    const a = norm(given);
+    const b = norm(correct);
+    if (!a || !b) return false;
+    if (a === b) return true;
+    if (b.includes(a) || a.includes(b)) return true;
+    const similarity = stringSimilarity(a, b);
+    return similarity >= 0.72;
+  }
+
+  function stringSimilarity(a, b) {
+    const dist = levenshtein(a, b);
+    const maxLen = Math.max(a.length, b.length);
+    return maxLen === 0 ? 0 : 1 - dist / maxLen;
+  }
+
+  function levenshtein(a, b) {
+    const m = a.length;
+    const n = b.length;
+    if (m === 0) return n;
+    if (n === 0) return m;
+    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        dp[i][j] = Math.min(
+          dp[i - 1][j] + 1,
+          dp[i][j - 1] + 1,
+          dp[i - 1][j - 1] + cost
+        );
+      }
+    }
+    return dp[m][n];
   }
 
   function concludeAnswer(correct, message) {
@@ -504,7 +554,11 @@
     markTile(activeQuestion.level, activeQuestion.category, activeQuestion.value, { by: "player", correct, timeMs: elapsed, id: activeQuestion.data.id });
     updateStatsAfterAnswer(correct, activeQuestion.value, elapsed);
     ui.modal.feedback.textContent = `${message} - Answer: ${activeQuestion.data.answer}`;
-    showFeedback(`${message} ${correct ? "You gain" : "You lose"} $${activeQuestion.value}`);
+    if (correct && state.stats.streak >= 2) {
+      showFeedback(`Streak x${state.stats.streak}! ${message} You gain $${activeQuestion.value}`);
+    } else {
+      showFeedback(`${message} ${correct ? "You gain" : "You lose"} $${activeQuestion.value}`);
+    }
     playSound(correct ? "correct" : "incorrect");
     saveState();
     setTimeout(() => {
@@ -528,8 +582,14 @@
   }
 
   function updateStatsAfterAnswer(correct, value, elapsed) {
-    if (correct) state.stats.correct += 1;
-    else state.stats.incorrect += 1;
+    if (correct) {
+      state.stats.correct += 1;
+      state.stats.streak = (state.stats.streak || 0) + 1;
+      state.stats.bestStreak = Math.max(state.stats.bestStreak || 0, state.stats.streak);
+    } else {
+      state.stats.incorrect += 1;
+      state.stats.streak = 0;
+    }
     if (correct && value > state.stats.bestValue) state.stats.bestValue = value;
     if (elapsed && (state.stats.fastestMs === null || elapsed < state.stats.fastestMs)) state.stats.fastestMs = elapsed;
   }
@@ -700,10 +760,35 @@
       if (!src) return;
       audioBank[name] = new Audio(src);
       audioBank[name].volume = 0.7;
+      audioBank[name].preload = "auto";
     }
     const clip = audioBank[name];
     clip.currentTime = 0;
-    clip.play().catch(() => { /* ignore autoplay restrictions */ });
+    clip.play().catch(() => {
+      clip.muted = true;
+      clip.play().finally(() => { clip.muted = false; });
+    });
+  }
+
+  function primeAudio() {
+    if (audioPrimed) return;
+    audioPrimed = true;
+    Object.keys(config.audioFiles).forEach(name => {
+      const src = config.audioFiles[name];
+      if (!src) return;
+      if (!audioBank[name]) {
+        audioBank[name] = new Audio(src);
+        audioBank[name].volume = 0.7;
+        audioBank[name].preload = "auto";
+      }
+      const clip = audioBank[name];
+      clip.muted = true;
+      clip.play().catch(() => {}).finally(() => {
+        clip.pause();
+        clip.currentTime = 0;
+        clip.muted = false;
+      });
+    });
   }
 
   function seededRandom(seed) {
