@@ -1,0 +1,249 @@
+{
+  "categories": [
+    "Información General",
+    "Lugares",
+    "La Cultura y los Animales"
+  ],
+  "tileValues": [200, 400, 600],
+  "levels": [
+    { "id": 1, "name": "Quito", "label": "Nivel 1" },
+    { "id": 2, "name": "Baños", "label": "Nivel 2" },
+    { "id": 3, "name": "Cuenca", "label": "Nivel 3" }
+  ],
+  "questions": [
+    {
+      "id": "info-1-600-a",
+      "category": "Información General",
+      "question": "¿Es ecuador un pais barato o caro?",
+      "answer": "Ecuador es un país muy barato.",
+      "value": 600,
+      "level": 1
+    },
+    {
+      "id": "info-2-400",
+      "category": "Información General",
+      "question": "¿Qué dinero tiene Ecuador?",
+      "answer": "Ecuador usa el dólar Americano.",
+      "value": 400,
+      "level": 2
+    },
+    {
+      "id": "info-3-600",
+      "category": "Información General",
+      "question": "¿Qué río famoso está en Ecuador?",
+      "answer": "El Rio Amazones",
+      "value": 600,
+      "level": 3
+    },
+    {
+      "id": "info-1-400-a",
+      "category": "Información General",
+      "question": "¿Qué significa \"Ecuador\" en inglés?",
+      "answer": "Equator",
+      "value": 400,
+      "level": 1
+    },
+    {
+      "id": "info-2-600",
+      "category": "Información General",
+      "question": "¿Qué fronteras comparte Ecuador?",
+      "answer": "Ecuador comparte fronteras con Colombia y Perú.",
+      "value": 600,
+      "level": 2
+    },
+    {
+      "id": "info-2-200",
+      "category": "Información General",
+      "question": "¿Ecuador está en qué continente?",
+      "answer": "Sudamerica",
+      "value": 200,
+      "level": 2
+    },
+    {
+      "id": "info-3-200",
+      "category": "Información General",
+      "question": "Ecuador es un pais pequeno o es un pais grande?",
+      "answer": "Ecuador es un país pequeño.",
+      "value": 200,
+      "level": 3
+    },
+    {
+      "id": "info-1-400-b",
+      "category": "Información General",
+      "question": "¿Ecuador tiene estaciones?",
+      "answer": "No, Ecuador solo tiene una temporada seca y una temporada mojada.",
+      "value": 400,
+      "level": 1
+    },
+    {
+      "id": "info-1-200",
+      "category": "Información General",
+      "question": "¿Cuál es la capital de Ecuador?",
+      "answer": "Quito",
+      "value": 200,
+      "level": 1
+    },
+    {
+      "id": "lug-1-400",
+      "category": "Lugares",
+      "question": "¿Dónde está Quito en Ecuador?",
+      "answer": "En las montañas y en el medio de Ecuador.",
+      "value": 400,
+      "level": 1
+    },
+    {
+      "id": "lug-3-200",
+      "category": "Lugares",
+      "question": "¿Cómo se llama el volcán de Quito?",
+      "answer": "Cotopaxi",
+      "value": 200,
+      "level": 3
+    },
+    {
+      "id": "lug-1-200",
+      "category": "Lugares",
+      "question": "¿Cómo se llaman las islas famosas en Ecuador?",
+      "answer": "Las Islas Galapagos",
+      "value": 200,
+      "level": 1
+    },
+    {
+      "id": "lug-2-600",
+      "category": "Lugares",
+      "question": "¿Cómo se llama el lugar que tiene un río hermoso, es muy antiguo y es muy barato?",
+      "answer": "Cuenca",
+      "value": 600,
+      "level": 2
+    },
+    {
+      "id": "lug-2-400",
+      "category": "Lugares",
+      "question": "¿Qué puedes tomar cuando tomas un tram en Cotopaxi?",
+      "answer": "Puedes tomar fotos.",
+      "value": 400,
+      "level": 2
+    },
+    {
+      "id": "lug-1-600",
+      "category": "Lugares",
+      "question": "¿Qué lugar turístico está en el centro de Ecuador?",
+      "answer": "Baños",
+      "value": 600,
+      "level": 1
+    },
+    {
+      "id": "lug-2-200",
+      "category": "Lugares",
+      "question": "¿Qué significa agua termales en inglés?",
+      "answer": "Hot Springs",
+      "value": 200,
+      "level": 2
+    },
+    {
+      "id": "lug-3-600",
+      "category": "Lugares",
+      "question": "¿Cómo se llama la ciudad en Ecuador que está enfrente de la playa y tiene tiendas pequeñas?",
+      "answer": "Montanita",
+      "value": 600,
+      "level": 3
+    },
+    {
+      "id": "lug-3-400",
+      "category": "Lugares",
+      "question": "¿Qué lugar tiene muchos deportes exóticos?",
+      "answer": "Baños",
+      "value": 400,
+      "level": 3
+    },
+    {
+      "id": "cult-3-200",
+      "category": "La Cultura y los Animales",
+      "question": "¿Qué es una chiva?",
+      "answer": "A local party bus",
+      "value": 200,
+      "level": 3
+    },
+    {
+      "id": "cult-2-600",
+      "category": "La Cultura y los Animales",
+      "question": "¿Cómo son especiales de los animales en las Islas Galápagos?",
+      "answer": "Los animales son exóticos y no tienen miedo de las personas.",
+      "value": 600,
+      "level": 2
+    },
+    {
+      "id": "cult-3-600",
+      "category": "La Cultura y los Animales",
+      "question": "¿Qué parte de Quito tiene más fiestas y música, La Parte Vieja o La Parte Musical?",
+      "answer": "La Parte Mursical",
+      "value": 600,
+      "level": 3
+    },
+    {
+      "id": "cult-1-200",
+      "category": "La Cultura y los Animales",
+      "question": "¿Las escuelas en Ecuador son más estrictas de los de Estados Unidos?",
+      "answer": "Si",
+      "value": 200,
+      "level": 1
+    },
+    {
+      "id": "cult-2-200",
+      "category": "La Cultura y los Animales",
+      "question": "¿Los estudiantes pueden tener chicha en sus bocas en Ecuador?",
+      "answer": "No",
+      "value": 200,
+      "level": 2
+    },
+    {
+      "id": "cult-1-400-a",
+      "category": "La Cultura y los Animales",
+      "question": "¿Qué ropa tienen que los estudiantes en Ecuador?",
+      "answer": "Uniformes",
+      "value": 400,
+      "level": 1
+    },
+    {
+      "id": "cult-2-400",
+      "category": "La Cultura y los Animales",
+      "question": "¿Tienen electivos en las escuelas de Ecuador?",
+      "answer": "A veces, pero normalmente: no.",
+      "value": 400,
+      "level": 2
+    },
+    {
+      "id": "cult-1-600",
+      "category": "La Cultura y los Animales",
+      "question": "¿Hay un lugar en Ecuador que tiene muchos animales muy diversos?",
+      "answer": "Si, la selva Amazónica (o las islas Galápagos).",
+      "value": 600,
+      "level": 1
+    },
+    {
+      "id": "cult-1-400-b",
+      "category": "La Cultura y los Animales",
+      "question": "¿Hay perezosos en Ecuador?",
+      "answer": "Si, hay perezosos en la selva Amazónica.",
+      "value": 400,
+      "level": 1
+    }
+  ],
+  "gaps": [
+    {
+      "category": "Información General",
+      "level": 3,
+      "missingValue": 400,
+      "suggestedFallback": "info-1-400-b"
+    },
+    {
+      "category": "La Cultura y los Animales",
+      "level": 3,
+      "missingValue": 400,
+      "suggestedFallback": "cult-1-400-b"
+    }
+  ],
+  "fallbacks": {
+    "Información General|3|400": "info-1-400-b",
+    "La Cultura y los Animales|3|400": "cult-1-400-b"
+  }
+}
