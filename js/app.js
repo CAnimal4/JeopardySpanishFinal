@@ -17,6 +17,7 @@
     version: "1.0.0"
   };
 
+  // Hoisted + safe everywhere: always call this instead of referencing a const template.
   function getCityStatsTemplate() {
     return { correct: 0, incorrect: 0, money: 0 };
   }
@@ -185,18 +186,46 @@
       completed: { 1: false, 2: false, 3: false },
       currentLevel: 1,
       tiles: { 1: {}, 2: {}, 3: {} },
-      stats: { correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0, city: { 1: getCityStatsTemplate(), 2: getCityStatsTemplate(), 3: getCityStatsTemplate() } },
+      stats: {
+        correct: 0,
+        incorrect: 0,
+        fastestMs: null,
+        bestValue: 0,
+        start: Date.now(),
+        streak: 0,
+        bestStreak: 0,
+        city: {
+          1: getCityStatsTemplate(),
+          2: getCityStatsTemplate(),
+          3: getCityStatsTemplate()
+        }
+      },
       aiSeed: Date.now(),
       sessionId: cryptoRandom()
     };
   }
 
   function normalizeState(s) {
-    s.stats = Object.assign({ correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0, city: { 1: getCityStatsTemplate(), 2: getCityStatsTemplate(), 3: getCityStatsTemplate() } }, s.stats || {});
+    s.stats = Object.assign({
+      correct: 0,
+      incorrect: 0,
+      fastestMs: null,
+      bestValue: 0,
+      start: Date.now(),
+      streak: 0,
+      bestStreak: 0,
+      city: {
+        1: getCityStatsTemplate(),
+        2: getCityStatsTemplate(),
+        3: getCityStatsTemplate()
+      }
+    }, s.stats || {});
+
     s.stats.city = s.stats.city || {};
     [1, 2, 3].forEach(lvl => {
       s.stats.city[lvl] = Object.assign(getCityStatsTemplate(), s.stats.city[lvl] || {});
     });
+
     s.scores = Object.assign({ player: 0, ai: 0 }, s.scores || {});
     s.unlocked = Object.assign({ 1: true, 2: false, 3: false }, s.unlocked || {});
     s.completed = Object.assign({ 1: false, 2: false, 3: false }, s.completed || {});
@@ -429,16 +458,16 @@
         const key = tileKey(cat, value);
         const played = state.tiles[level][key];
         const q = findQuestion(level, cat, value);
-    tile.innerHTML = `<span>$${value}</span><span>${played ? (played.by === "player" ? "You" : "AI") : "Ready"}</span>`;
-    tile.disabled = !q || !!played;
-    tile.setAttribute("aria-label", `${cat} for $${value} ${played ? "already played" : ""}`);
-    if (q) {
+        tile.innerHTML = `<span>$${value}</span><span>${played ? (played.by === "player" ? "You" : "AI") : "Ready"}</span>`;
+        tile.disabled = !q || !!played;
+        tile.setAttribute("aria-label", `${cat} for $${value} ${played ? "already played" : ""}`);
+        if (q) {
           tile.addEventListener("click", () => {
             tile.classList.add("pulse");
             setTimeout(() => tile.classList.remove("pulse"), 350);
             openQuestion(level, cat, value, q);
           });
-    }
+        }
         col.appendChild(tile);
       });
       ui.board.grid.appendChild(col);
@@ -603,23 +632,35 @@
 
   function concludeAnswer(correct, message) {
     if (!activeQuestion) return;
+
+    // Capture before closeQuestion() clears it.
+    const level = activeQuestion.level;
+    const category = activeQuestion.category;
+    const value = activeQuestion.value;
+    const qid = activeQuestion.data?.id;
+
     clearInterval(timerInterval);
     const elapsed = activeQuestion.start ? Math.round(performance.now() - activeQuestion.start) : null;
+
     applyScore("player", correct);
-    markTile(activeQuestion.level, activeQuestion.category, activeQuestion.value, { by: "player", correct, timeMs: elapsed, id: activeQuestion.data.id });
-    updateStatsAfterAnswer(correct, activeQuestion.value, elapsed);
+    markTile(level, category, value, { by: "player", correct, timeMs: elapsed, id: qid });
+    updateStatsAfterAnswer(correct, value, elapsed);
+
     ui.modal.feedback.textContent = `${message} - Answer: ${activeQuestion.data.answer}`;
+
     if (correct && state.stats.streak >= 2) {
-      showFeedback(`Streak x${state.stats.streak}! ${message} You gain $${activeQuestion.value}`);
+      showFeedback(`Streak x${state.stats.streak}! ${message} You gain $${value}`);
     } else {
-      showFeedback(`${message} ${correct ? "You gain" : "You lose"} $${activeQuestion.value}`);
+      showFeedback(`${message} ${correct ? "You gain" : "You lose"} $${value}`);
     }
+
     playSound(correct ? "correct" : "incorrect");
     saveState();
+
     setTimeout(() => {
       closeQuestion();
-      renderBoard(activeQuestion.level);
-      checkCompletion(activeQuestion.level);
+      renderBoard(level);
+      checkCompletion(level);
       setTimeout(handleAiTurn, 600);
     }, 650);
   }
@@ -641,18 +682,21 @@
       state.stats.correct += 1;
       state.stats.streak = (state.stats.streak || 0) + 1;
       state.stats.bestStreak = Math.max(state.stats.bestStreak || 0, state.stats.streak);
-      const cityStat = state.stats.city[state.currentLevel] || { ...cityStatsTemplate };
+
+      const cityStat = state.stats.city[state.currentLevel] || getCityStatsTemplate();
       cityStat.correct += 1;
       cityStat.money += value;
       state.stats.city[state.currentLevel] = cityStat;
     } else {
       state.stats.incorrect += 1;
       state.stats.streak = 0;
-      const cityStat = state.stats.city[state.currentLevel] || { ...cityStatsTemplate };
+
+      const cityStat = state.stats.city[state.currentLevel] || getCityStatsTemplate();
       cityStat.incorrect += 1;
       cityStat.money -= value;
       state.stats.city[state.currentLevel] = cityStat;
     }
+
     if (correct && value > state.stats.bestValue) state.stats.bestValue = value;
     if (elapsed && (state.stats.fastestMs === null || elapsed < state.stats.fastestMs)) state.stats.fastestMs = elapsed;
   }
@@ -771,8 +815,22 @@
     state.scores = { player: 0, ai: 0 };
     state.completed = { 1: false, 2: false, 3: false };
     state.unlocked = { 1: true, 2: false, 3: false };
-    state.stats = { correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0, city: { 1: { ...cityStatsTemplate }, 2: { ...cityStatsTemplate }, 3: { ...cityStatsTemplate } } };
+    state.stats = {
+      correct: 0,
+      incorrect: 0,
+      fastestMs: null,
+      bestValue: 0,
+      start: Date.now(),
+      streak: 0,
+      bestStreak: 0,
+      city: {
+        1: getCityStatsTemplate(),
+        2: getCityStatsTemplate(),
+        3: getCityStatsTemplate()
+      }
+    };
     state.currentLevel = 1;
+
     if (mode === "easy") {
       config.ai.successByLevel = { 1: 0.9, 2: 0.75, 3: 0.6 };
     } else if (mode === "hard") {
@@ -780,6 +838,7 @@
     } else {
       config.ai.successByLevel = { 1: 0.78, 2: 0.6, 3: 0.45 };
     }
+
     saveState();
     renderMap();
     setScreen("map");
@@ -887,7 +946,7 @@
       }
       const clip = audioBank[name];
       clip.muted = true;
-      clip.play().catch(() => {}).finally(() => {
+      clip.play().catch(() => { }).finally(() => {
         clip.pause();
         clip.currentTime = 0;
         clip.muted = false;
@@ -920,6 +979,13 @@
   }
 
   function cryptoRandom() {
+    try {
+      if (window.crypto && window.crypto.getRandomValues) {
+        const arr = new Uint32Array(1);
+        window.crypto.getRandomValues(arr);
+        return arr[0];
+      }
+    } catch (_) { }
     return Math.floor(Math.random() * 1e9);
   }
 
