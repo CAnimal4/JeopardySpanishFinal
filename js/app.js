@@ -769,13 +769,16 @@
     if (!available.length) return;
     const pick = chooseAiTile(available);
     if (!pick) return;
-    const confidence = Math.round((config.ai.successByLevel[level] || 0.5) * 100);
-    ui.hud.aiConfidence.textContent = `AI thinking · ~${confidence}%`;
+    const baseChance = config.ai.successByLevel[level] || 0.5;
+    const jitter = (aiRng() - 0.5) * 0.18;
+    const successView = Math.max(0.1, Math.min(0.95, baseChance + jitter));
+    const confidence = Math.round(successView * 100);
+    ui.hud.aiConfidence.textContent = `AI thinking ~${confidence}%`;
     showFeedback(`AI thinking on ${pick.category} - $${pick.value}...`);
     const delay = lerp(config.ai.thinkMs[0], config.ai.thinkMs[1], aiRng());
     setTimeout(() => {
-      const successChance = config.ai.successByLevel[level] || 0.5;
-      const correct = aiRng() < successChance;
+      const playChance = Math.max(0.1, Math.min(0.95, successView + (aiRng() - 0.5) * 0.1));
+      const correct = aiRng() < playChance;
       activeQuestion = pick;
       applyScore("ai", correct);
       markTile(level, pick.category, pick.value, { by: "ai", correct, id: pick.data.id });

@@ -61,7 +61,7 @@ p {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding: 0.35rem 0.75rem;
+  padding: 0.2rem 0.45rem;
   position: sticky;
   top: 0;
   background: linear-gradient(90deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.12));
@@ -76,8 +76,8 @@ p {
 }
 
 .brand-mark {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 8px;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   display: grid;
@@ -87,19 +87,19 @@ p {
 }
 
 .app-header h1 {
-  font-size: 1.1rem;
+  font-size: 0.9rem;
 }
 
 .app-header .overline {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
 }
 
 .hud {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.2rem 0.5rem;
+  gap: 0.1rem 0.35rem;
   align-items: center;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
 }
 
 .city-badges {
@@ -112,7 +112,7 @@ p {
 .hud-label {
   display: block;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
 }
 
 .hud span {
