@@ -177,7 +177,7 @@
       nickname: "",
       settings: {
         sfx: true,
-        music: true,
+        music: false,
         theme: "dark",
         contrast: false,
         reduceMotion: false
@@ -207,6 +207,7 @@
   }
 
   function normalizeState(s) {
+    s.settings = Object.assign({ sfx: true, music: false, theme: "dark", contrast: false, reduceMotion: false }, s.settings || {});
     s.stats = Object.assign({
       correct: 0,
       incorrect: 0,
@@ -289,19 +290,24 @@
       showToast("Enter a nickname to start");
       return;
     }
-    state.nickname = name;
-    state.aiSeed = hashString(name || state.sessionId || Date.now());
-    aiRng = seededRandom(state.aiSeed);
-    if (name.toLowerCase().includes("dippel") || name.toLowerCase().includes("jeff")) {
-      showToast("Bienvenidos Senor Dippel!");
+    const proceed = () => {
+      state.nickname = name;
+      state.aiSeed = hashString(name || state.sessionId || Date.now());
+      aiRng = seededRandom(state.aiSeed);
+      primeAudio();
+      if (state.settings.music) startMusic(); else stopMusic();
+      ui.hud.player.textContent = name;
+      saveState();
+      setScreen("intro");
+      playSound("ui");
+      startIntroProgress();
+    };
+    const lower = name.toLowerCase();
+    if (lower.includes("dippel") || lower.includes("jeff") || lower.includes("senor")) {
+      showDippelPopup(proceed);
+    } else {
+      proceed();
     }
-    primeAudio();
-    startMusic();
-    ui.hud.player.textContent = name;
-    saveState();
-    setScreen("intro");
-    playSound("ui");
-    startIntroProgress();
   }
 
   function updateSettingFromToggle(key, el) {
@@ -367,13 +373,21 @@
   function startIntroProgress() {
     ui.intro.cards.forEach((card, idx) => card.classList.toggle("active", idx === 0));
     updateIntroProgress(0);
+    ui.intro.next.dataset.readyMap = "";
   }
 
   function advanceIntro() {
     const activeIdx = ui.intro.cards.findIndex(c => c.classList.contains("active"));
     if (activeIdx === -1) return;
     if (activeIdx >= ui.intro.cards.length - 1) {
-      setScreen("map");
+      if (ui.intro.next.dataset.readyMap === "true") {
+        ui.intro.next.dataset.readyMap = "";
+        setScreen("map");
+      } else {
+        ui.intro.next.dataset.readyMap = "true";
+        ui.intro.next.textContent = "Go to map";
+        showToast("Try the practice question, then click Go to map.");
+      }
       return;
     }
     ui.intro.cards[activeIdx].classList.remove("active");
@@ -383,9 +397,6 @@
       ui.intro.next.textContent = "Go to map";
     } else {
       ui.intro.next.textContent = "Next";
-    }
-    if (activeIdx >= ui.intro.cards.length - 1) {
-      setScreen("map");
     }
   }
 
@@ -687,6 +698,7 @@
       if (hint) feedbackText += ` | Hint: ${hint}`;
     }
     ui.modal.feedback.textContent = feedbackText;
+    ui.modal.feedback.classList.toggle("hint-emphasis", !correct);
 
     if (correct && state.stats.streak >= 2) {
       showFeedback(`Streak x${state.stats.streak}! ${message} You gain $${value}`);
@@ -697,12 +709,13 @@
     playSound(correct ? "correct" : "incorrect");
     saveState();
 
+    const pause = correct ? 650 : 2200;
     setTimeout(() => {
       closeQuestion();
       renderBoard(level);
       checkCompletion(level);
       setTimeout(handleAiTurn, 600);
-    }, 650);
+    }, pause);
   }
 
   function markTile(level, category, value, data) {
@@ -934,6 +947,19 @@
     setTimeout(() => { ui.toast.style.display = "none"; }, 2200);
   }
 
+  function showDippelPopup(next) {
+    const overlay = document.getElementById("dippel-popup");
+    if (!overlay) {
+      next();
+      return;
+    }
+    overlay.classList.add("show");
+    setTimeout(() => {
+      overlay.classList.remove("show");
+      next();
+    }, 1800);
+  }
+
   function closeOnboarding(markComplete) {
     document.getElementById("onboarding").classList.remove("show");
     if (markComplete) localStorage.setItem(onboardingKey, "done");
@@ -1002,7 +1028,7 @@
       try {
         musicAudio = new Audio(src);
         musicAudio.loop = true;
-        musicAudio.volume = 0.3;
+        musicAudio.volume = 0.18;
         musicAudio.preload = "auto";
       } catch (err) {
         console.warn("Music init failed", err);
