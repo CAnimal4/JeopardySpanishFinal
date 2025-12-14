@@ -661,7 +661,7 @@
     const pick = chooseAiTile(available);
     if (!pick) return;
     const confidence = Math.round((config.ai.successByLevel[level] || 0.5) * 100);
-    ui.aiConfidence.textContent = `AI thinking · ~${confidence}%`;
+    ui.hud.aiConfidence.textContent = `AI thinking · ~${confidence}%`;
     showFeedback(`AI thinking on ${pick.category} - $${pick.value}...`);
     const delay = lerp(config.ai.thinkMs[0], config.ai.thinkMs[1], aiRng());
     setTimeout(() => {
@@ -676,7 +676,7 @@
       renderBoard(level);
       checkCompletion(level);
       activeQuestion = null;
-      ui.aiConfidence.textContent = "AI ready";
+      ui.hud.aiConfidence.textContent = "AI ready";
     }, delay);
   }
 
