@@ -204,6 +204,7 @@
 
   function wireEvents() {
     ui.startForm.addEventListener("submit", onStart);
+    ui.playBtn.addEventListener("click", onStart);
     ui.clearBtn.addEventListener("click", clearProgress);
     ui.showTour.addEventListener("click", () => {
       localStorage.removeItem(onboardingKey);
