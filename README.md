@@ -2,10 +2,18 @@
 
 Single-page, Jeopardy-style Ecuador game. Runs directly from `index.html` with no build step and persists progress in `localStorage`. Theme blends Andes/Amazon visuals, inline SVG map nodes (Quito -> Baños -> Cuenca), deterministic AI turns, keyboard accessibility, and sound effects only (no narration).
 
+## What's new in this build
+- One-time guided tour overlay (map -> tile -> timer -> AI turn) with manual replay from the start screen.
+- Ecuador flavor updates: city badges (Easy/Medium/Hard) with icons, subtle map accents, responsive glass UI.
+- Interaction polish: tile pulse on pick, streak feedback, AI confidence indicator and thinking cue (respects reduced motion).
+- End-game analytics: accuracy %, best streak, biggest tile, per-city breakdown, replay options (Easy / Normal / Hard AI) that keep your nickname.
+- Robustness: friendlier handling for missing data/audio, timers cleared on navigation, progress saved/restored toasts.
+
 ## Quick start & deploy
 - Open `index.html` in a browser, or serve locally (`python -m http.server 8000`), or push the folder to GitHub and enable **GitHub Pages** (root, `/`).
 - Audio: place your SFX in `assets/audio/` using the names in the manifest. Missing files simply mute that effect.
 - Clear progress from the Start screen to reset `localStorage` (`hpbb-state-v1`).
+- Replay the guided tour any time via the “Replay tour” button on the start screen.
 
 ## Config (edit `js/app.js`)
 - `config.timerSeconds`: answer time limit (default 24s).
@@ -67,6 +75,7 @@ Single source: `data/questions.json` with fields `category`, `question`, `answer
 - ARIA: live regions for HUD/feedback, `role="dialog"` on the modal, labels on map nodes and buttons.
 - Toggles: high contrast, reduced motion, light/dark theme, SFX/music.
 - Responsive layout for phones/tablets/desktops; HUD and timer stay visible.
+- Reduced-motion setting disables animations/pulses; AI thinking cues degrade gracefully.
 
 ## Persistence & resilience
 - Progress, scores, settings, unlocked cities, and answered tiles persist in `localStorage` (`hpbb-state-v1`).

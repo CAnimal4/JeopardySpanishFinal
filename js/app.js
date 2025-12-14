@@ -25,6 +25,8 @@
   let aiRng = seededRandom(state.aiSeed || Date.now());
   let audioBank = {};
   let audioPrimed = false;
+  const onboardingKey = "hpbb-onboarding-v1";
+  const cityStatsTemplate = { correct: 0, incorrect: 0, money: 0 };
 
   const ui = {
     screens: {
@@ -39,7 +41,8 @@
       playerMoney: document.getElementById("hud-player-money"),
       aiMoney: document.getElementById("hud-ai-money"),
       level: document.getElementById("hud-level"),
-      back: document.getElementById("back-to-map")
+      back: document.getElementById("back-to-map"),
+      aiConfidence: document.getElementById("ai-confidence")
     },
     startForm: document.getElementById("start-form"),
     nickname: document.getElementById("nickname"),
@@ -52,6 +55,7 @@
     },
     playBtn: document.getElementById("play-btn"),
     clearBtn: document.getElementById("clear-progress"),
+    showTour: document.getElementById("show-tour"),
     intro: {
       cards: Array.from(document.querySelectorAll(".intro-card")),
       progress: document.getElementById("intro-progress"),
@@ -99,7 +103,11 @@
       best: document.getElementById("final-best"),
       fastest: document.getElementById("final-fastest"),
       time: document.getElementById("final-time"),
+      accuracy: document.getElementById("final-accuracy"),
+      streak: document.getElementById("final-streak"),
       replay: document.getElementById("replay"),
+      replayEasy: document.getElementById("replay-easy"),
+      replayHard: document.getElementById("replay-hard"),
       restartMap: document.getElementById("restart-map"),
       share: document.getElementById("share"),
       download: document.getElementById("download-json")
@@ -113,12 +121,19 @@
     wireEvents();
     updateHud();
     setScreen("start");
+    if (localStorage.getItem(storageKey)) {
+      showToast("Progress restored");
+    }
+    if (!localStorage.getItem(onboardingKey)) {
+      document.getElementById("onboarding").classList.add("show");
+    }
     try {
       questionData = await fetchQuestions();
       practicePool = questionData.questions.filter(q => q.level === 1 && q.value === 400);
       buildPractice();
       renderMap();
     } catch (err) {
+      ui.board.grid.innerHTML = "<p>Question data missing or invalid. Please refresh.</p>";
       showToast("Could not load the question bank. Check data/questions.json");
       console.error(err);
     }
@@ -159,14 +174,18 @@
       completed: { 1: false, 2: false, 3: false },
       currentLevel: 1,
       tiles: { 1: {}, 2: {}, 3: {} },
-      stats: { correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0 },
+      stats: { correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0, city: { 1: { ...cityStatsTemplate }, 2: { ...cityStatsTemplate }, 3: { ...cityStatsTemplate } } },
       aiSeed: Date.now(),
       sessionId: cryptoRandom()
     };
   }
 
   function normalizeState(s) {
-    s.stats = Object.assign({ correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0 }, s.stats || {});
+    s.stats = Object.assign({ correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0, city: { 1: { ...cityStatsTemplate }, 2: { ...cityStatsTemplate }, 3: { ...cityStatsTemplate } } }, s.stats || {});
+    s.stats.city = s.stats.city || {};
+    [1, 2, 3].forEach(lvl => {
+      s.stats.city[lvl] = Object.assign({ ...cityStatsTemplate }, s.stats.city[lvl] || {});
+    });
     s.scores = Object.assign({ player: 0, ai: 0 }, s.scores || {});
     s.unlocked = Object.assign({ 1: true, 2: false, 3: false }, s.unlocked || {});
     s.completed = Object.assign({ 1: false, 2: false, 3: false }, s.completed || {});
@@ -176,11 +195,20 @@
 
   function saveState() {
     localStorage.setItem(storageKey, JSON.stringify(state));
+    const now = Date.now();
+    if (now - (saveState.lastToast || 0) > 8000) {
+      showToast("Progress saved");
+      saveState.lastToast = now;
+    }
   }
 
   function wireEvents() {
     ui.startForm.addEventListener("submit", onStart);
     ui.clearBtn.addEventListener("click", clearProgress);
+    ui.showTour.addEventListener("click", () => {
+      localStorage.removeItem(onboardingKey);
+      document.getElementById("onboarding").classList.add("show");
+    });
     Object.entries(ui.toggles).forEach(([key, el]) => {
       el.addEventListener("change", () => updateSettingFromToggle(key, el));
     });
@@ -194,6 +222,8 @@
       });
     });
     ui.hud.back.addEventListener("click", () => setScreen("map"));
+    document.getElementById("onboarding-skip").addEventListener("click", () => closeOnboarding(true));
+    document.getElementById("onboarding-next").addEventListener("click", () => closeOnboarding(true));
     ui.modal.close.addEventListener("click", closeQuestion);
     ui.modal.submit.addEventListener("click", submitAnswer);
     ui.modal.giveUp.addEventListener("click", () => concludeAnswer(false, "You passed"));
@@ -203,6 +233,8 @@
       if (e.key === "Enter" && ui.modal.wrapper.classList.contains("show")) submitAnswer();
     });
     ui.end.replay.addEventListener("click", replay);
+    ui.end.replayEasy.addEventListener("click", () => replay("easy"));
+    ui.end.replayHard.addEventListener("click", () => replay("hard"));
     ui.end.restartMap.addEventListener("click", () => setScreen("map"));
     ui.end.share.addEventListener("click", shareResult);
     ui.end.download.addEventListener("click", downloadSummary);
@@ -272,6 +304,10 @@
     Object.entries(ui.screens).forEach(([key, el]) => {
       el.classList.toggle("active", key === name);
     });
+    if (name !== "board") {
+      clearInterval(timerInterval);
+      ui.board.timer.textContent = "--";
+    }
     if (name === "map") renderMap();
     if (name === "board") renderBoard(state.currentLevel);
     if (name === "end") finalizeStats();
@@ -350,6 +386,9 @@
       showToast("Level locked. Clear the previous city first.");
       return;
     }
+    if (!localStorage.getItem(onboardingKey)) {
+      closeOnboarding(true);
+    }
     state.currentLevel = level;
     saveState();
     updateHud();
@@ -378,12 +417,16 @@
         const key = tileKey(cat, value);
         const played = state.tiles[level][key];
         const q = findQuestion(level, cat, value);
-        tile.innerHTML = `<span>$${value}</span><span>${played ? (played.by === "player" ? "You" : "AI") : "Ready"}</span>`;
-        tile.disabled = !q || !!played;
-        tile.setAttribute("aria-label", `${cat} for $${value} ${played ? "already played" : ""}`);
-        if (q) {
-          tile.addEventListener("click", () => openQuestion(level, cat, value, q));
-        }
+    tile.innerHTML = `<span>$${value}</span><span>${played ? (played.by === "player" ? "You" : "AI") : "Ready"}</span>`;
+    tile.disabled = !q || !!played;
+    tile.setAttribute("aria-label", `${cat} for $${value} ${played ? "already played" : ""}`);
+    if (q) {
+          tile.addEventListener("click", () => {
+            tile.classList.add("pulse");
+            setTimeout(() => tile.classList.remove("pulse"), 350);
+            openQuestion(level, cat, value, q);
+          });
+    }
         col.appendChild(tile);
       });
       ui.board.grid.appendChild(col);
@@ -586,9 +629,17 @@
       state.stats.correct += 1;
       state.stats.streak = (state.stats.streak || 0) + 1;
       state.stats.bestStreak = Math.max(state.stats.bestStreak || 0, state.stats.streak);
+      const cityStat = state.stats.city[state.currentLevel] || { ...cityStatsTemplate };
+      cityStat.correct += 1;
+      cityStat.money += value;
+      state.stats.city[state.currentLevel] = cityStat;
     } else {
       state.stats.incorrect += 1;
       state.stats.streak = 0;
+      const cityStat = state.stats.city[state.currentLevel] || { ...cityStatsTemplate };
+      cityStat.incorrect += 1;
+      cityStat.money -= value;
+      state.stats.city[state.currentLevel] = cityStat;
     }
     if (correct && value > state.stats.bestValue) state.stats.bestValue = value;
     if (elapsed && (state.stats.fastestMs === null || elapsed < state.stats.fastestMs)) state.stats.fastestMs = elapsed;
@@ -599,6 +650,7 @@
     ui.hud.playerMoney.textContent = `$${state.scores.player || 0}`;
     ui.hud.aiMoney.textContent = `$${state.scores.ai || 0}`;
     ui.hud.level.textContent = state.currentLevel;
+    ui.hud.aiConfidence.textContent = "AI ready";
   }
 
   function handleAiTurn() {
@@ -608,6 +660,8 @@
     if (!available.length) return;
     const pick = chooseAiTile(available);
     if (!pick) return;
+    const confidence = Math.round((config.ai.successByLevel[level] || 0.5) * 100);
+    ui.aiConfidence.textContent = `AI thinking · ~${confidence}%`;
     showFeedback(`AI thinking on ${pick.category} - $${pick.value}...`);
     const delay = lerp(config.ai.thinkMs[0], config.ai.thinkMs[1], aiRng());
     setTimeout(() => {
@@ -622,6 +676,7 @@
       renderBoard(level);
       checkCompletion(level);
       activeQuestion = null;
+      ui.aiConfidence.textContent = "AI ready";
     }, delay);
   }
 
@@ -684,15 +739,35 @@
     ui.end.fastest.textContent = state.stats.fastestMs ? `${state.stats.fastestMs} ms` : "--";
     const minutes = ((Date.now() - state.stats.start) / 60000).toFixed(2);
     ui.end.time.textContent = `${minutes} min`;
+    const total = state.stats.correct + state.stats.incorrect;
+    const accuracy = total ? Math.round((state.stats.correct / total) * 100) : 0;
+    ui.end.accuracy.textContent = `${accuracy}%`;
+    ui.end.streak.textContent = state.stats.bestStreak || 0;
+    const breakdown = document.getElementById("final-city-breakdown");
+    breakdown.innerHTML = "";
+    [1, 2, 3].forEach(level => {
+      const c = state.stats.city[level] || { correct: 0, incorrect: 0, money: 0 };
+      const card = document.createElement("div");
+      card.className = "glass";
+      card.innerHTML = `<strong>${questionData?.levels?.find(l => l.id === level)?.name || "City"}</strong><div>${c.correct} correct / ${c.incorrect} incorrect</div><div>Money: $${c.money || 0}</div>`;
+      breakdown.appendChild(card);
+    });
   }
 
-  function replay() {
+  function replay(mode) {
     state.tiles = { 1: {}, 2: {}, 3: {} };
     state.scores = { player: 0, ai: 0 };
     state.completed = { 1: false, 2: false, 3: false };
     state.unlocked = { 1: true, 2: false, 3: false };
-    state.stats = { correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now() };
+    state.stats = { correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0, city: { 1: { ...cityStatsTemplate }, 2: { ...cityStatsTemplate }, 3: { ...cityStatsTemplate } } };
     state.currentLevel = 1;
+    if (mode === "easy") {
+      config.ai.successByLevel = { 1: 0.9, 2: 0.75, 3: 0.6 };
+    } else if (mode === "hard") {
+      config.ai.successByLevel = { 1: 0.7, 2: 0.5, 3: 0.35 };
+    } else {
+      config.ai.successByLevel = { 1: 0.78, 2: 0.6, 3: 0.45 };
+    }
     saveState();
     renderMap();
     setScreen("map");
@@ -748,6 +823,11 @@
     setTimeout(() => { ui.toast.style.display = "none"; }, 2200);
   }
 
+  function closeOnboarding(markComplete) {
+    document.getElementById("onboarding").classList.remove("show");
+    if (markComplete) localStorage.setItem(onboardingKey, "done");
+  }
+
   function playConfetti() {
     if (!window.confetti) return;
     confetti({ particleCount: 120, spread: 70, origin: { y: 0.7 } });
@@ -761,6 +841,7 @@
       audioBank[name] = new Audio(src);
       audioBank[name].volume = 0.7;
       audioBank[name].preload = "auto";
+      audioBank[name].addEventListener("error", () => showToast(`Audio failed to load: ${name}`));
     }
     const clip = audioBank[name];
     clip.currentTime = 0;

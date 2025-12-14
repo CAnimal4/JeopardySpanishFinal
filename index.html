@@ -25,6 +25,7 @@
         <div><span class="hud-label">Money</span><span id="hud-player-money">$0</span></div>
         <div><span class="hud-label">AI Rival</span><span id="hud-ai-money">$0</span></div>
         <div><span class="hud-label">Level</span><span id="hud-level">-</span></div>
+        <div class="ai-indicator" aria-live="polite"><span class="ai-dot"></span><span id="ai-confidence">AI ready</span></div>
         <button id="back-to-map" class="ghost" aria-label="Back to map" title="Back to map">Map</button>
       </div>
     </header>
@@ -70,6 +71,7 @@
                 </label>
               </div>
               <div class="actions-row">
+                <button type="button" id="show-tour" class="ghost" aria-label="Replay tour">Replay tour</button>
                 <button type="button" id="clear-progress" class="ghost" aria-label="Clear saved progress">Clear progress</button>
                 <button type="submit" id="play-btn" class="primary" aria-label="Play now">Play</button>
               </div>
@@ -124,6 +126,11 @@
             <div>
               <p class="overline">Explore the map</p>
               <h2>Levels: Quito -> Baños -> Cuenca</h2>
+              <div class="city-badges">
+                <span class="city-badge">Easy · Quito</span>
+                <span class="city-badge">Medium · Baños</span>
+                <span class="city-badge">Hard · Cuenca</span>
+              </div>
             </div>
             <div class="map-legend">
               <span class="legend-item"><span class="dot unlocked"></span>Unlocked</span>
@@ -144,15 +151,21 @@
               <line id="line-2-3" x1="200" y1="320" x2="190" y2="430" class="map-line dashed"></line>
               <g id="city-1" class="city-node" tabindex="0" role="button" aria-label="Quito, level 1" transform="translate(160 190)">
                 <circle r="14" class="city-circle"></circle>
+                <path class="city-icon" d="M-10 6 L0 -12 L10 6 Z"></path>
                 <text y="36" class="city-label">Quito</text>
+                <text y="52" class="city-label">Easy</text>
               </g>
               <g id="city-2" class="city-node locked" tabindex="-1" role="button" aria-label="Baños, level 2 locked" transform="translate(200 310)">
                 <circle r="14" class="city-circle"></circle>
+                <rect class="city-icon" x="-8" y="-8" width="16" height="16" rx="3"></rect>
                 <text y="36" class="city-label">Baños</text>
+                <text y="52" class="city-label">Medium</text>
               </g>
               <g id="city-3" class="city-node locked" tabindex="-1" role="button" aria-label="Cuenca, level 3 locked" transform="translate(190 420)">
                 <circle r="14" class="city-circle"></circle>
+                <circle class="city-icon" r="8" cy="0"></circle>
                 <text y="36" class="city-label">Cuenca</text>
+                <text y="52" class="city-label">Hard</text>
               </g>
             </svg>
           </div>
@@ -222,10 +235,15 @@
               <div><span class="hud-label">Incorrect</span><strong id="final-wrong"></strong></div>
               <div><span class="hud-label">Biggest tile</span><strong id="final-best"></strong></div>
               <div><span class="hud-label">Fastest answer</span><strong id="final-fastest"></strong></div>
+              <div><span class="hud-label">Accuracy</span><strong id="final-accuracy"></strong></div>
+              <div><span class="hud-label">Best streak</span><strong id="final-streak"></strong></div>
               <div><span class="hud-label">Time played</span><strong id="final-time"></strong></div>
             </div>
+            <div class="end-grid-city" id="final-city-breakdown"></div>
             <div class="actions-row">
               <button id="replay" class="primary">Play again</button>
+              <button id="replay-easy" class="ghost">Replay Easy AI</button>
+              <button id="replay-hard" class="ghost">Replay Hard AI</button>
               <button id="restart-map" class="ghost">Back to map</button>
               <button id="share" class="ghost">Share</button>
               <button id="download-json" class="ghost">Download summary</button>
@@ -237,6 +255,20 @@
   </div>
 
   <div id="toast" role="status" aria-live="polite"></div>
+  <div id="onboarding" class="onboarding-overlay" role="dialog" aria-modal="true" aria-label="Guided tips">
+    <div class="onboarding-card">
+      <h3>Quick tour</h3>
+      <div class="onboarding-steps">
+        <div class="onboarding-step">1) Pick a city node on the map to start.</div>
+        <div class="onboarding-step">2) Choose a tile and answer before the timer ends.</div>
+        <div class="onboarding-step">3) Watch the AI take a turn after you.</div>
+      </div>
+      <div class="actions-row">
+        <button id="onboarding-skip" class="ghost">Skip tour</button>
+        <button id="onboarding-next" class="primary">Got it</button>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="js/app.js"></script>
