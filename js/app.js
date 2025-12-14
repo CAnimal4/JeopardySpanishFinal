@@ -29,6 +29,7 @@
   let practicePool = [];
   let aiRng = seededRandom(state.aiSeed || Date.now());
   let audioBank = {};
+  let musicAudio = null;
   let audioPrimed = false;
   const onboardingKey = "hpbb-onboarding-v1";
 
@@ -267,7 +268,7 @@
     document.getElementById("onboarding-next").addEventListener("click", () => closeOnboarding(true));
     ui.modal.close.addEventListener("click", closeQuestion);
     ui.modal.submit.addEventListener("click", submitAnswer);
-    ui.modal.giveUp.addEventListener("click", () => concludeAnswer(false, "You passed"));
+    ui.modal.giveUp.addEventListener("click", () => concludeAnswer(false, "You passed", ""));
     ui.modal.modes.forEach(btn => btn.addEventListener("click", () => switchMode(btn.dataset.mode)));
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeQuestion();
@@ -291,7 +292,11 @@
     state.nickname = name;
     state.aiSeed = hashString(name || state.sessionId || Date.now());
     aiRng = seededRandom(state.aiSeed);
+    if (name.toLowerCase().includes("dippel") || name.toLowerCase().includes("jeff")) {
+      showToast("Bienvenidos Senor Dippel!");
+    }
     primeAudio();
+    startMusic();
     ui.hud.player.textContent = name;
     saveState();
     setScreen("intro");
@@ -305,6 +310,10 @@
       case "sfx":
       case "music":
         state.settings[key] = checked;
+        if (key === "music") {
+          if (checked) startMusic();
+          else stopMusic();
+        }
         break;
       case "theme":
         state.settings.theme = checked ? "dark" : "light";
@@ -330,6 +339,7 @@
     ui.toggles.contrast.checked = state.settings.contrast;
     ui.toggles.motion.checked = state.settings.reduceMotion;
     applyTheme();
+    if (state.settings.music) startMusic(); else stopMusic();
   }
 
   function applyTheme() {
@@ -371,7 +381,11 @@
     updateIntroProgress(activeIdx + 1);
     if (activeIdx + 1 === ui.intro.cards.length - 1) {
       ui.intro.next.textContent = "Go to map";
-      setTimeout(() => setScreen("map"), 1200);
+    } else {
+      ui.intro.next.textContent = "Next";
+    }
+    if (activeIdx >= ui.intro.cards.length - 1) {
+      setScreen("map");
     }
   }
 
@@ -563,7 +577,7 @@
       ui.board.timer.textContent = remaining;
       if (remaining <= 0) {
         clearInterval(timerInterval);
-        concludeAnswer(false, "Time is up");
+        concludeAnswer(false, "Time is up", "");
       }
     }, 1000);
   }
@@ -583,7 +597,7 @@
       return;
     }
     const isCorrect = compareAnswers(userAnswer, activeQuestion.data.answer);
-    concludeAnswer(isCorrect, isCorrect ? "Correct!" : "Incorrect answer");
+    concludeAnswer(isCorrect, isCorrect ? "Correct!" : "Incorrect answer", userAnswer);
   }
 
   function compareAnswers(given, correct) {
@@ -601,6 +615,27 @@
     if (b.includes(a) || a.includes(b)) return true;
     const similarity = stringSimilarity(a, b);
     return similarity >= 0.72;
+  }
+
+  function generateHint(given, correct) {
+    const norm = (s) => s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9 ]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    const answerWords = norm(correct).split(" ").filter(Boolean);
+    const guessWords = norm(given).split(" ").filter(Boolean);
+    if (!answerWords.length || !guessWords.length) return "";
+    const missing = answerWords.filter(w => !guessWords.includes(w)).slice(0, 2);
+    if (missing.length) {
+      return `Think about: ${missing.join(", ")}`;
+    }
+    if (given.length < correct.length / 2) {
+      return "Your answer is too short—add more detail.";
+    }
+    return "Check spelling and key words.";
   }
 
   function stringSimilarity(a, b) {
@@ -630,7 +665,7 @@
     return dp[m][n];
   }
 
-  function concludeAnswer(correct, message) {
+  function concludeAnswer(correct, message, playerAnswer = "") {
     if (!activeQuestion) return;
 
     // Capture before closeQuestion() clears it.
@@ -646,7 +681,12 @@
     markTile(level, category, value, { by: "player", correct, timeMs: elapsed, id: qid });
     updateStatsAfterAnswer(correct, value, elapsed);
 
-    ui.modal.feedback.textContent = `${message} - Answer: ${activeQuestion.data.answer}`;
+    let feedbackText = `${message} - Answer: ${activeQuestion.data.answer}`;
+    if (!correct && playerAnswer) {
+      const hint = generateHint(playerAnswer, activeQuestion.data.answer);
+      if (hint) feedbackText += ` | Hint: ${hint}`;
+    }
+    ui.modal.feedback.textContent = feedbackText;
 
     if (correct && state.stats.streak >= 2) {
       showFeedback(`Streak x${state.stats.streak}! ${message} You gain $${value}`);
@@ -952,6 +992,31 @@
         clip.muted = false;
       });
     });
+  }
+
+  function startMusic() {
+    if (!state.settings.music) return;
+    const src = config.audioFiles.ui;
+    if (!src) return;
+    if (!musicAudio) {
+      try {
+        musicAudio = new Audio(src);
+        musicAudio.loop = true;
+        musicAudio.volume = 0.3;
+        musicAudio.preload = "auto";
+      } catch (err) {
+        console.warn("Music init failed", err);
+        return;
+      }
+    }
+    musicAudio.play().catch(() => {});
+  }
+
+  function stopMusic() {
+    if (musicAudio) {
+      musicAudio.pause();
+      musicAudio.currentTime = 0;
+    }
   }
 
   function seededRandom(seed) {
