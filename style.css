@@ -95,11 +95,17 @@ p {
 }
 
 .hud {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.1rem 0.35rem;
+  display: flex;
+  gap: 0.75rem;
   align-items: center;
+  flex-wrap: wrap;
   font-size: 0.82rem;
+}
+
+.hud > div {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
 }
 
 .city-badges {
@@ -110,7 +116,7 @@ p {
 }
 
 .hud-label {
-  display: block;
+  display: inline-block;
   color: var(--muted);
   font-size: 0.68rem;
 }

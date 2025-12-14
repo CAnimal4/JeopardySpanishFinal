@@ -646,7 +646,7 @@
     if (given.length < correct.length / 2) {
       return "Your answer is too short—add more detail.";
     }
-    return "Check spelling and key words.";
+    return "Check key words and spelling.";
   }
 
   function stringSimilarity(a, b) {
@@ -692,8 +692,10 @@
     markTile(level, category, value, { by: "player", correct, timeMs: elapsed, id: qid });
     updateStatsAfterAnswer(correct, value, elapsed);
 
-    let feedbackText = `${message} - Answer: ${activeQuestion.data.answer}`;
-    if (!correct && playerAnswer) {
+    let feedbackText = message;
+    if (correct) {
+      feedbackText += ` - Answer: ${activeQuestion.data.answer}`;
+    } else if (playerAnswer) {
       const hint = generateHint(playerAnswer, activeQuestion.data.answer);
       if (hint) feedbackText += ` | Hint: ${hint}`;
     }
