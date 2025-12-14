@@ -17,6 +17,10 @@
     version: "1.0.0"
   };
 
+  function getCityStatsTemplate() {
+    return { correct: 0, incorrect: 0, money: 0 };
+  }
+
   let questionData = null;
   let state = loadState();
   let activeQuestion = null;
@@ -26,7 +30,6 @@
   let audioBank = {};
   let audioPrimed = false;
   const onboardingKey = "hpbb-onboarding-v1";
-  const cityStatsTemplate = { correct: 0, incorrect: 0, money: 0 };
 
   const ui = {
     screens: {
@@ -144,17 +147,25 @@
       .then(r => {
         if (!r.ok) throw new Error("Error loading questions");
         return r.json();
+      })
+      .catch(err => {
+        console.warn("Question data failed to load", err);
+        ui.board.grid.innerHTML = "<p>Question data missing or invalid. Please refresh.</p>";
+        showToast("Question data missing or invalid");
+        return { categories: [], questions: [], levels: [] };
       });
   }
 
   function loadState() {
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try {
-        return normalizeState(JSON.parse(saved));
-      } catch (_) {
-        return createDefaultState();
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return normalizeState(parsed);
       }
+    } catch (err) {
+      console.warn("State load failed, resetting to defaults", err);
+      localStorage.removeItem(storageKey);
     }
     return createDefaultState();
   }
@@ -174,17 +185,17 @@
       completed: { 1: false, 2: false, 3: false },
       currentLevel: 1,
       tiles: { 1: {}, 2: {}, 3: {} },
-      stats: { correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0, city: { 1: { ...cityStatsTemplate }, 2: { ...cityStatsTemplate }, 3: { ...cityStatsTemplate } } },
+      stats: { correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0, city: { 1: getCityStatsTemplate(), 2: getCityStatsTemplate(), 3: getCityStatsTemplate() } },
       aiSeed: Date.now(),
       sessionId: cryptoRandom()
     };
   }
 
   function normalizeState(s) {
-    s.stats = Object.assign({ correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0, city: { 1: { ...cityStatsTemplate }, 2: { ...cityStatsTemplate }, 3: { ...cityStatsTemplate } } }, s.stats || {});
+    s.stats = Object.assign({ correct: 0, incorrect: 0, fastestMs: null, bestValue: 0, start: Date.now(), streak: 0, bestStreak: 0, city: { 1: getCityStatsTemplate(), 2: getCityStatsTemplate(), 3: getCityStatsTemplate() } }, s.stats || {});
     s.stats.city = s.stats.city || {};
     [1, 2, 3].forEach(lvl => {
-      s.stats.city[lvl] = Object.assign({ ...cityStatsTemplate }, s.stats.city[lvl] || {});
+      s.stats.city[lvl] = Object.assign(getCityStatsTemplate(), s.stats.city[lvl] || {});
     });
     s.scores = Object.assign({ player: 0, ai: 0 }, s.scores || {});
     s.unlocked = Object.assign({ 1: true, 2: false, 3: false }, s.unlocked || {});
@@ -839,10 +850,15 @@
     if (!audioBank[name]) {
       const src = config.audioFiles[name];
       if (!src) return;
-      audioBank[name] = new Audio(src);
-      audioBank[name].volume = 0.7;
-      audioBank[name].preload = "auto";
-      audioBank[name].addEventListener("error", () => showToast(`Audio failed to load: ${name}`));
+      try {
+        audioBank[name] = new Audio(src);
+        audioBank[name].volume = 0.7;
+        audioBank[name].preload = "auto";
+        audioBank[name].addEventListener("error", () => console.warn(`Audio failed to load: ${name}`));
+      } catch (err) {
+        console.warn("Audio init failed", err);
+        return;
+      }
     }
     const clip = audioBank[name];
     clip.currentTime = 0;
@@ -859,9 +875,15 @@
       const src = config.audioFiles[name];
       if (!src) return;
       if (!audioBank[name]) {
-        audioBank[name] = new Audio(src);
-        audioBank[name].volume = 0.7;
-        audioBank[name].preload = "auto";
+        try {
+          audioBank[name] = new Audio(src);
+          audioBank[name].volume = 0.7;
+          audioBank[name].preload = "auto";
+          audioBank[name].addEventListener("error", () => console.warn(`Audio failed to load: ${name}`));
+        } catch (err) {
+          console.warn("Audio init failed", err);
+          return;
+        }
       }
       const clip = audioBank[name];
       clip.muted = true;
