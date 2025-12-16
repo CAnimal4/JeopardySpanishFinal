@@ -14,9 +14,17 @@
     {
       "id": "info-1-600-a",
       "category": "Información General",
-      "question": "¿Es ecuador un pais barato o caro?",
+      "question": "Es ecuador un pais barato o caro?",
       "answer": "Ecuador es un país muy barato.",
       "value": 600,
+      "level": 1
+    },
+    {
+      "id": "info-1-400-loc",
+      "category": "Información General",
+      "question": "¿Dónde está Quito en Ecuador?",
+      "answer": "En las montañas y en el medio de Ecuador.",
+      "value": 400,
       "level": 1
     },
     {
@@ -36,9 +44,9 @@
       "level": 3
     },
     {
-      "id": "info-1-400-a",
+      "id": "info-1-400-meaning",
       "category": "Información General",
-      "question": "¿Qué significa \"Ecuador\" en inglés?",
+      "question": "¿Qué significa “Ecuador” en inglés?",
       "answer": "Equator",
       "value": 400,
       "level": 1
@@ -54,7 +62,7 @@
     {
       "id": "info-2-200",
       "category": "Información General",
-      "question": "¿Ecuador está en qué continente?",
+      "question": "¿Ecuador está en qué continente ?",
       "answer": "Sudamerica",
       "value": 200,
       "level": 2
@@ -68,12 +76,20 @@
       "level": 3
     },
     {
-      "id": "info-1-400-b",
+      "id": "info-2-200-hot",
+      "category": "Información General",
+      "question": "¿Qué significa agua termales en inglés?",
+      "answer": "Hot Springs",
+      "value": 200,
+      "level": 2
+    },
+    {
+      "id": "info-3-400-seasons",
       "category": "Información General",
       "question": "¿Ecuador tiene estaciones?",
       "answer": "No, Ecuador solo tiene una temporada seca y una temporada mojada.",
       "value": 400,
-      "level": 1
+      "level": 3
     },
     {
       "id": "info-1-200",
@@ -84,23 +100,7 @@
       "level": 1
     },
     {
-      "id": "lug-1-400",
-      "category": "Lugares",
-      "question": "¿Dónde está Quito en Ecuador?",
-      "answer": "En las montañas y en el medio de Ecuador.",
-      "value": 400,
-      "level": 1
-    },
-    {
-      "id": "lug-3-200",
-      "category": "Lugares",
-      "question": "¿Cómo se llama el volcán de Quito?",
-      "answer": "Cotopaxi",
-      "value": 200,
-      "level": 3
-    },
-    {
-      "id": "lug-1-200",
+      "id": "lug-1-200-islas",
       "category": "Lugares",
       "question": "¿Cómo se llaman las islas famosas en Ecuador?",
       "answer": "Las Islas Galapagos",
@@ -108,7 +108,15 @@
       "level": 1
     },
     {
-      "id": "lug-2-600",
+      "id": "lug-3-600-fiesta",
+      "category": "Lugares",
+      "question": "¿Qué parte de Quito tiene más fiestas y música, La Parte Vieja o La Parte Muriscal?",
+      "answer": "La Parte Muriscal",
+      "value": 600,
+      "level": 3
+    },
+    {
+      "id": "lug-2-600-cuenca",
       "category": "Lugares",
       "question": "¿Cómo se llama el lugar que tiene un río hermoso, es muy antiguo y es muy barato?",
       "answer": "Cuenca",
@@ -116,7 +124,7 @@
       "level": 2
     },
     {
-      "id": "lug-2-400",
+      "id": "lug-2-400-fotos",
       "category": "Lugares",
       "question": "¿Qué puedes tomar cuando tomas un tram en Cotopaxi?",
       "answer": "Puedes tomar fotos.",
@@ -124,7 +132,7 @@
       "level": 2
     },
     {
-      "id": "lug-1-600",
+      "id": "lug-1-600-banos",
       "category": "Lugares",
       "question": "¿Qué lugar turístico está en el centro de Ecuador?",
       "answer": "Baños",
@@ -132,15 +140,7 @@
       "level": 1
     },
     {
-      "id": "lug-2-200",
-      "category": "Lugares",
-      "question": "¿Qué significa agua termales en inglés?",
-      "answer": "Hot Springs",
-      "value": 200,
-      "level": 2
-    },
-    {
-      "id": "lug-3-600",
+      "id": "lug-3-600-montanita",
       "category": "Lugares",
       "question": "¿Cómo se llama la ciudad en Ecuador que está enfrente de la playa y tiene tiendas pequeñas?",
       "answer": "Montanita",
@@ -148,7 +148,15 @@
       "level": 3
     },
     {
-      "id": "lug-3-400",
+      "id": "lug-1-600-animales",
+      "category": "Lugares",
+      "question": "¿Hay un lugar en Ecuador que tiene muchos animales muy diversos?",
+      "answer": "Sí, la selva Amazónica (o las islas Galápagos).",
+      "value": 600,
+      "level": 1
+    },
+    {
+      "id": "lug-3-400-deportes",
       "category": "Lugares",
       "question": "¿Qué lugar tiene muchos deportes exóticos?",
       "answer": "Baños",
@@ -156,7 +164,7 @@
       "level": 3
     },
     {
-      "id": "cult-3-200",
+      "id": "cult-3-200-chiva",
       "category": "La Cultura y los Animales",
       "question": "¿Qué es una chiva?",
       "answer": "A local party bus",
@@ -164,7 +172,15 @@
       "level": 3
     },
     {
-      "id": "cult-2-600",
+      "id": "cult-3-200-volcan",
+      "category": "La Cultura y los Animales",
+      "question": "¿Cómo se llama el volcán de Quito?",
+      "answer": "Cotopaxi",
+      "value": 200,
+      "level": 3
+    },
+    {
+      "id": "cult-2-600-galapagos",
       "category": "La Cultura y los Animales",
       "question": "¿Cómo son especiales de los animales en las Islas Galápagos?",
       "answer": "Los animales son exóticos y no tienen miedo de las personas.",
@@ -172,31 +188,23 @@
       "level": 2
     },
     {
-      "id": "cult-3-600",
+      "id": "cult-1-200-estrictas",
       "category": "La Cultura y los Animales",
-      "question": "¿Qué parte de Quito tiene más fiestas y música, La Parte Vieja o La Parte Musical?",
-      "answer": "La Parte Mursical",
-      "value": 600,
-      "level": 3
-    },
-    {
-      "id": "cult-1-200",
-      "category": "La Cultura y los Animales",
-      "question": "¿Las escuelas en Ecuador son más estrictas de los de Estados Unidos?",
+      "question": "¿Las escuelas en Ecuador son más estrictas de las de los Estados Unidos?",
       "answer": "Si",
       "value": 200,
       "level": 1
     },
     {
-      "id": "cult-2-200",
+      "id": "cult-2-200-chicla",
       "category": "La Cultura y los Animales",
-      "question": "¿Los estudiantes pueden tener chicha en sus bocas en Ecuador?",
+      "question": "¿Los estudiantes pueden tener chicla en sus bocas en Ecuador?",
       "answer": "No",
       "value": 200,
       "level": 2
     },
     {
-      "id": "cult-1-400-a",
+      "id": "cult-1-400-ropa",
       "category": "La Cultura y los Animales",
       "question": "¿Qué ropa tienen que los estudiantes en Ecuador?",
       "answer": "Uniformes",
@@ -204,7 +212,7 @@
       "level": 1
     },
     {
-      "id": "cult-2-400",
+      "id": "cult-2-400-electivos",
       "category": "La Cultura y los Animales",
       "question": "¿Tienen electivos en las escuelas de Ecuador?",
       "answer": "A veces, pero normalmente: no.",
@@ -212,38 +220,26 @@
       "level": 2
     },
     {
-      "id": "cult-1-600",
-      "category": "La Cultura y los Animales",
-      "question": "¿Hay un lugar en Ecuador que tiene muchos animales muy diversos?",
-      "answer": "Si, la selva Amazónica (o las islas Galápagos).",
-      "value": 600,
-      "level": 1
-    },
-    {
-      "id": "cult-1-400-b",
+      "id": "cult-3-400-perezosos",
       "category": "La Cultura y los Animales",
       "question": "¿Hay perezosos en Ecuador?",
-      "answer": "Si, hay perezosos en la selva Amazónica.",
+      "answer": "Sí, hay perezosos en la selva Amazónica.",
       "value": 400,
-      "level": 1
+      "level": 3
     }
   ],
   "gaps": [
-    {
-      "category": "Información General",
-      "level": 3,
-      "missingValue": 400,
-      "suggestedFallback": "info-1-400-b"
-    },
-    {
-      "category": "La Cultura y los Animales",
-      "level": 3,
-      "missingValue": 400,
-      "suggestedFallback": "cult-1-400-b"
-    }
+    { "category": "Lugares", "level": 1, "missingValue": 400, "suggestedFallback": "lug-2-400-fotos" },
+    { "category": "Lugares", "level": 2, "missingValue": 200, "suggestedFallback": "lug-1-200-islas" },
+    { "category": "Lugares", "level": 3, "missingValue": 200, "suggestedFallback": "lug-1-200-islas" },
+    { "category": "La Cultura y los Animales", "level": 1, "missingValue": 600, "suggestedFallback": "cult-2-600-galapagos" },
+    { "category": "La Cultura y los Animales", "level": 3, "missingValue": 600, "suggestedFallback": "cult-2-600-galapagos" }
   ],
   "fallbacks": {
-    "Información General|3|400": "info-1-400-b",
-    "La Cultura y los Animales|3|400": "cult-1-400-b"
+    "Lugares|1|400": "lug-2-400-fotos",
+    "Lugares|2|200": "lug-1-200-islas",
+    "Lugares|3|200": "lug-1-200-islas",
+    "La Cultura y los Animales|1|600": "cult-2-600-galapagos",
+    "La Cultura y los Animales|3|600": "cult-2-600-galapagos"
   }
 }

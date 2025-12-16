@@ -56,8 +56,10 @@
       music: document.getElementById("music-toggle"),
       theme: document.getElementById("theme-toggle"),
       contrast: document.getElementById("contrast-toggle"),
-      motion: document.getElementById("motion-toggle")
+      motion: document.getElementById("motion-toggle"),
+      confetti: document.getElementById("confetti-toggle")
     },
+    answerMode: document.getElementById("answer-mode"),
     playBtn: document.getElementById("play-btn"),
     clearBtn: document.getElementById("clear-progress"),
     showTour: document.getElementById("show-tour"),
@@ -134,6 +136,7 @@
     }
     try {
       questionData = await fetchQuestions();
+      validateData(questionData);
       practicePool = questionData.questions.filter(q => q.level === 1 && q.value === 400);
       buildPractice();
       renderMap();
@@ -180,7 +183,9 @@
         music: false,
         theme: "dark",
         contrast: false,
-        reduceMotion: false
+        reduceMotion: false,
+        answerMode: "choice",
+        confetti: true
       },
       scores: { player: 0, ai: 0 },
       unlocked: { 1: true, 2: false, 3: false },
@@ -207,7 +212,7 @@
   }
 
   function normalizeState(s) {
-    s.settings = Object.assign({ sfx: true, music: false, theme: "dark", contrast: false, reduceMotion: false }, s.settings || {});
+    s.settings = Object.assign({ sfx: true, music: false, theme: "dark", contrast: false, reduceMotion: false, answerMode: "choice", confetti: true }, s.settings || {});
     s.stats = Object.assign({
       correct: 0,
       incorrect: 0,
@@ -252,6 +257,8 @@
       localStorage.removeItem(onboardingKey);
       document.getElementById("onboarding").classList.add("show");
     });
+    ui.answerMode.addEventListener("change", () => updateSettingFromToggle("answerMode", ui.answerMode));
+    ui.toggles.confetti.addEventListener("change", () => updateSettingFromToggle("confetti", ui.toggles.confetti));
     Object.entries(ui.toggles).forEach(([key, el]) => {
       el.addEventListener("change", () => updateSettingFromToggle(key, el));
     });
@@ -321,6 +328,12 @@
           else stopMusic();
         }
         break;
+      case "confetti":
+        state.settings.confetti = checked;
+        break;
+      case "answerMode":
+        state.settings.answerMode = el.value === "text" ? "text" : "choice";
+        break;
       case "theme":
         state.settings.theme = checked ? "dark" : "light";
         break;
@@ -341,6 +354,8 @@
     ui.nickname.value = state.nickname || "";
     ui.toggles.sfx.checked = state.settings.sfx;
     ui.toggles.music.checked = state.settings.music;
+    ui.toggles.confetti.checked = state.settings.confetti;
+    ui.answerMode.value = state.settings.answerMode === "text" ? "text" : "choice";
     ui.toggles.theme.checked = state.settings.theme === "dark";
     ui.toggles.contrast.checked = state.settings.contrast;
     ui.toggles.motion.checked = state.settings.reduceMotion;
@@ -522,7 +537,7 @@
     ui.modal.feedback.textContent = "";
     ui.modal.textField.value = "";
     ui.modal.wrapper.classList.add("show");
-    switchMode("text");
+    switchMode(state.settings.answerMode === "text" ? "text" : "choice");
     buildChoices(q);
     startTimer();
     playSound("select");
@@ -549,14 +564,33 @@
       btn.setAttribute("role", "radio");
       btn.setAttribute("aria-checked", "false");
       btn.textContent = opt;
-      btn.addEventListener("click", () => {
-        Array.from(ui.modal.choiceContainer.children).forEach(c => c.setAttribute("aria-checked", "false"));
-        btn.setAttribute("aria-checked", "true");
-        btn.dataset.selected = "true";
+      btn.addEventListener("click", () => toggleChoice(btn));
+      btn.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggleChoice(btn);
+        }
       });
-      if (idx === 0) btn.setAttribute("aria-checked", "true");
       ui.modal.choiceContainer.appendChild(btn);
     });
+  }
+
+  function toggleChoice(btn) {
+    const selected = btn.dataset.selected === "true";
+    if (selected) {
+      btn.dataset.selected = "false";
+      btn.setAttribute("aria-checked", "false");
+      btn.classList.remove("choice-selected");
+      return;
+    }
+    Array.from(ui.modal.choiceContainer.children).forEach(c => {
+      c.dataset.selected = "false";
+      c.setAttribute("aria-checked", "false");
+      c.classList.remove("choice-selected");
+    });
+    btn.dataset.selected = "true";
+    btn.setAttribute("aria-checked", "true");
+    btn.classList.add("choice-selected");
   }
 
   function switchMode(mode) {
@@ -575,6 +609,11 @@
       choiceMode.classList.remove("hidden");
       const first = ui.modal.choiceContainer.querySelector("button");
       if (first) first.focus();
+      Array.from(ui.modal.choiceContainer.children).forEach(c => {
+        c.dataset.selected = "false";
+        c.setAttribute("aria-checked", "false");
+        c.classList.remove("choice-selected");
+      });
     }
     ui.board.note.textContent = mode === "text" ? "Type and press Enter to answer quickly." : "Select an option and press Submit.";
   }
@@ -600,7 +639,7 @@
     if (mode === "text") {
       userAnswer = ui.modal.textField.value.trim();
     } else {
-      const sel = ui.modal.choiceContainer.querySelector("[data-selected='true']") || ui.modal.choiceContainer.querySelector("button");
+      const sel = ui.modal.choiceContainer.querySelector("[data-selected='true']");
       userAnswer = sel ? sel.dataset.value : "";
     }
     if (!userAnswer) {
@@ -647,6 +686,19 @@
       return "Your answer is too short—add more detail.";
     }
     return "Check key words and spelling.";
+  }
+
+  function validateData(data) {
+    if (!data || !data.questions) return;
+    const outOfRange = [];
+    const allowed = /[^\u0000-\u024F\u1E00-\u1EFF\u201C\u201D\u00A1\u00BF\s\w.,;:'"-]/;
+    data.questions.forEach((q) => {
+      const combined = `${q.question} ${q.answer}`;
+      if (allowed.test(combined)) outOfRange.push(q.id || q.question);
+    });
+    if (outOfRange.length) {
+      console.warn("Questions contain characters outside typical Spanish/ASCII ranges:", outOfRange);
+    }
   }
 
   function stringSimilarity(a, b) {
@@ -698,6 +750,8 @@
     } else if (playerAnswer) {
       const hint = generateHint(playerAnswer, activeQuestion.data.answer);
       if (hint) feedbackText += ` | Hint: ${hint}`;
+    } else {
+      feedbackText += ` - Answer: ${activeQuestion.data.answer}`;
     }
     ui.modal.feedback.textContent = feedbackText;
     ui.modal.feedback.classList.toggle("hint-emphasis", !correct);
@@ -959,6 +1013,16 @@
       return;
     }
     overlay.classList.add("show");
+    if (state.settings.confetti && !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+      try {
+        confetti({
+          particleCount: 80,
+          spread: 60,
+          origin: { y: 0.7 },
+          disableForReducedMotion: true
+        });
+      } catch (_) {}
+    }
     setTimeout(() => {
       overlay.classList.remove("show");
       next();

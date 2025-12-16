@@ -69,6 +69,17 @@
                   <input type="checkbox" id="motion-toggle">
                   <span>Reduce motion</span>
                 </label>
+                <label class="toggle">
+                  <input type="checkbox" id="confetti-toggle" checked>
+                  <span>Confetti for special nicknames</span>
+                </label>
+                <label class="toggle" for="answer-mode">
+                  <span>Default answer mode</span>
+                  <select id="answer-mode" aria-label="Default answer mode">
+                    <option value="choice">Multiple choice</option>
+                    <option value="text">Text entry</option>
+                  </select>
+                </label>
               </div>
               <div class="actions-row">
                 <button type="button" id="show-tour" class="ghost" aria-label="Replay tour">Replay tour</button>
@@ -114,7 +125,7 @@
           </div>
           <div class="intro-controls">
             <div id="intro-progress" aria-hidden="true"></div>
-            <button id="next-intro" class="primary">Next</button>
+            <button id="next-intro" class="primary" aria-label="Continue to Map">Next</button>
           </div>
         </div>
       </section>
