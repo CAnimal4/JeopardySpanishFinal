@@ -310,7 +310,7 @@
       startIntroProgress();
     };
     const lower = name.toLowerCase();
-    if (lower.includes("dippel") || lower.includes("jeff") || lower.includes("senor")) {
+    if (lower.includes("dippel") || lower.includes("jef")) {
       showDippelPopup(proceed);
     } else {
       proceed();
